@@ -1,0 +1,2307 @@
+[
+  {
+    "name": "米饭",
+    "kcal100": 116,
+    "unit": "g",
+    "ref": "米饭（蒸，代表值）",
+    "note": "熟重；生米约 346 千卡/100g，勿混用",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 小碗",
+        "grams": 150,
+        "kcal": 174
+      },
+      {
+        "desc": "1 碗",
+        "grams": 200,
+        "kcal": 232
+      },
+      {
+        "desc": "1 大碗",
+        "grams": 300,
+        "kcal": 348
+      }
+    ]
+  },
+  {
+    "name": "白粥",
+    "kcal100": 46,
+    "unit": "g",
+    "ref": "粳米粥",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 小碗",
+        "grams": 200,
+        "kcal": 92
+      },
+      {
+        "desc": "1 碗",
+        "grams": 300,
+        "kcal": 138
+      }
+    ]
+  },
+  {
+    "name": "小米粥",
+    "kcal100": 46,
+    "unit": "g",
+    "ref": "小米粥",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 小碗",
+        "grams": 200,
+        "kcal": 92
+      },
+      {
+        "desc": "1 碗",
+        "grams": 300,
+        "kcal": 138
+      }
+    ]
+  },
+  {
+    "name": "馒头",
+    "kcal100": 223,
+    "unit": "g",
+    "ref": "馒头（代表值）",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "半个",
+        "grams": 50,
+        "kcal": 112
+      },
+      {
+        "desc": "1 个（中等）",
+        "grams": 100,
+        "kcal": 223
+      },
+      {
+        "desc": "1 个（大）",
+        "grams": 150,
+        "kcal": 335
+      }
+    ]
+  },
+  {
+    "name": "面条",
+    "kcal100": 107,
+    "unit": "g",
+    "ref": "面条（富强粉，煮）",
+    "note": "熟重；生面条约 283–301 千卡/100g，勿混用",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 小碗",
+        "grams": 200,
+        "kcal": 214
+      },
+      {
+        "desc": "1 碗",
+        "grams": 250,
+        "kcal": 268
+      },
+      {
+        "desc": "1 大碗",
+        "grams": 350,
+        "kcal": 375
+      }
+    ]
+  },
+  {
+    "name": "挂面",
+    "kcal100": 353,
+    "unit": "g",
+    "ref": "挂面（代表值）",
+    "note": "干重；煮熟后约 110 千卡/100g",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 小把（干）",
+        "grams": 80,
+        "kcal": 282
+      },
+      {
+        "desc": "1 把（干）",
+        "grams": 100,
+        "kcal": 353
+      }
+    ]
+  },
+  {
+    "name": "米线",
+    "kcal100": 110,
+    "unit": "g",
+    "note": "熟重（含汤的米线按此估）",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 小碗",
+        "grams": 200,
+        "kcal": 220
+      },
+      {
+        "desc": "1 碗",
+        "grams": 250,
+        "kcal": 275
+      }
+    ]
+  },
+  {
+    "name": "饺子",
+    "kcal100": 230,
+    "unit": "g",
+    "note": "猪肉白菜水饺，熟重",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 个",
+        "grams": 20,
+        "kcal": 46
+      },
+      {
+        "desc": "1 份（10 个）",
+        "grams": 200,
+        "kcal": 460
+      }
+    ]
+  },
+  {
+    "name": "包子",
+    "kcal100": 220,
+    "unit": "g",
+    "note": "肉馅；素馅约 180 千卡/100g",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 个（小）",
+        "grams": 70,
+        "kcal": 154
+      },
+      {
+        "desc": "1 个（中等）",
+        "grams": 100,
+        "kcal": 220
+      },
+      {
+        "desc": "1 个（大）",
+        "grams": 150,
+        "kcal": 330
+      }
+    ]
+  },
+  {
+    "name": "馄饨",
+    "kcal100": 150,
+    "unit": "g",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 小碗（约 8 个）",
+        "grams": 200,
+        "kcal": 300
+      },
+      {
+        "desc": "1 碗（约 12 个）",
+        "grams": 300,
+        "kcal": 450
+      }
+    ]
+  },
+  {
+    "name": "汤圆",
+    "kcal100": 300,
+    "unit": "g",
+    "note": "芝麻馅，煮",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 个",
+        "grams": 20,
+        "kcal": 60
+      },
+      {
+        "desc": "1 碗（6 个）",
+        "grams": 120,
+        "kcal": 360
+      }
+    ]
+  },
+  {
+    "name": "粽子",
+    "kcal100": 200,
+    "unit": "g",
+    "note": "肉粽约 200–250，白粽约 150",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 个（小）",
+        "grams": 100,
+        "kcal": 200
+      },
+      {
+        "desc": "1 个（中等）",
+        "grams": 150,
+        "kcal": 300
+      }
+    ]
+  },
+  {
+    "name": "油条",
+    "kcal100": 388,
+    "unit": "g",
+    "ref": "油条",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 根",
+        "grams": 60,
+        "kcal": 233
+      },
+      {
+        "desc": "1 根（大）",
+        "grams": 80,
+        "kcal": 310
+      }
+    ]
+  },
+  {
+    "name": "烧饼",
+    "kcal100": 298,
+    "unit": "g",
+    "ref": "烧饼（加糖）",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 个（小）",
+        "grams": 60,
+        "kcal": 179
+      },
+      {
+        "desc": "1 个（中等）",
+        "grams": 80,
+        "kcal": 238
+      }
+    ]
+  },
+  {
+    "name": "面包",
+    "kcal100": 300,
+    "unit": "g",
+    "note": "甜面包约 300–330 千卡/100g",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 片",
+        "grams": 35,
+        "kcal": 105
+      },
+      {
+        "desc": "2 片",
+        "grams": 70,
+        "kcal": 210
+      }
+    ]
+  },
+  {
+    "name": "全麦面包",
+    "kcal100": 250,
+    "unit": "g",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 片",
+        "grams": 35,
+        "kcal": 88
+      },
+      {
+        "desc": "2 片",
+        "grams": 70,
+        "kcal": 175
+      }
+    ]
+  },
+  {
+    "name": "玉米",
+    "kcal100": 112,
+    "unit": "g",
+    "ref": "玉米（鲜）",
+    "note": "可食部（棒芯不算）",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 根（小）",
+        "grams": 100,
+        "kcal": 112
+      },
+      {
+        "desc": "1 根（中等）",
+        "grams": 150,
+        "kcal": 168
+      },
+      {
+        "desc": "1 根（大）",
+        "grams": 250,
+        "kcal": 280
+      }
+    ]
+  },
+  {
+    "name": "红薯",
+    "kcal100": 86,
+    "unit": "g",
+    "note": "蒸/烤；成分表『甘薯（红心）』61、『甘薯（白心）』106，取 86",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 个（小）",
+        "grams": 100,
+        "kcal": 86
+      },
+      {
+        "desc": "1 个（中等）",
+        "grams": 200,
+        "kcal": 172
+      },
+      {
+        "desc": "1 个（大）",
+        "grams": 300,
+        "kcal": 258
+      }
+    ]
+  },
+  {
+    "name": "土豆",
+    "kcal100": 81,
+    "unit": "g",
+    "ref": "马铃薯［土豆、洋芋］",
+    "note": "蒸/煮；炸薯条另计",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 个（小）",
+        "grams": 80,
+        "kcal": 65
+      },
+      {
+        "desc": "1 个（中等）",
+        "grams": 150,
+        "kcal": 122
+      },
+      {
+        "desc": "1 个（大）",
+        "grams": 250,
+        "kcal": 203
+      }
+    ]
+  },
+  {
+    "name": "山药",
+    "kcal100": 57,
+    "unit": "g",
+    "ref": "山药（鲜）［薯蓣，大薯］",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 段（约 10cm）",
+        "grams": 150,
+        "kcal": 86
+      }
+    ]
+  },
+  {
+    "name": "芋头",
+    "kcal100": 56,
+    "unit": "g",
+    "ref": "芋头［芋艿、毛芋］",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个（中等）",
+        "grams": 100,
+        "kcal": 56
+      },
+      {
+        "desc": "1 份",
+        "grams": 200,
+        "kcal": 112
+      }
+    ]
+  },
+  {
+    "name": "燕麦片",
+    "kcal100": 367,
+    "unit": "g",
+    "note": "干重；成分表『燕麦』338 为原粮",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 勺（干）",
+        "grams": 20,
+        "kcal": 73
+      },
+      {
+        "desc": "1 份（干，约 4 勺）",
+        "grams": 40,
+        "kcal": 147
+      }
+    ]
+  },
+  {
+    "name": "鸡蛋",
+    "kcal100": 139,
+    "unit": "g",
+    "ref": "鸡蛋（代表值）",
+    "note": "可食部（去壳）",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 个（小）",
+        "grams": 45,
+        "kcal": 63
+      },
+      {
+        "desc": "1 个（中等）",
+        "grams": 50,
+        "kcal": 70
+      },
+      {
+        "desc": "1 个（大）",
+        "grams": 60,
+        "kcal": 83
+      }
+    ]
+  },
+  {
+    "name": "蛋清",
+    "kcal100": 60,
+    "unit": "g",
+    "ref": "鸡蛋白",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个",
+        "grams": 33,
+        "kcal": 20
+      }
+    ]
+  },
+  {
+    "name": "蛋黄",
+    "kcal100": 328,
+    "unit": "g",
+    "ref": "鸡蛋黄",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个",
+        "grams": 17,
+        "kcal": 56
+      }
+    ]
+  },
+  {
+    "name": "鸭蛋",
+    "kcal100": 180,
+    "unit": "g",
+    "ref": "鸭蛋",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个",
+        "grams": 70,
+        "kcal": 126
+      }
+    ]
+  },
+  {
+    "name": "咸鸭蛋",
+    "kcal100": 177,
+    "unit": "g",
+    "ref": "鸭蛋（咸鸭蛋，煮）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个",
+        "grams": 60,
+        "kcal": 106
+      }
+    ]
+  },
+  {
+    "name": "鸡胸肉",
+    "kcal100": 118,
+    "unit": "g",
+    "ref": "鸡胸脯肉",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 块（中等）",
+        "grams": 120,
+        "kcal": 142
+      },
+      {
+        "desc": "1 块（大）",
+        "grams": 200,
+        "kcal": 236
+      }
+    ]
+  },
+  {
+    "name": "鸡腿",
+    "kcal100": 146,
+    "unit": "g",
+    "ref": "鸡腿",
+    "note": "可食部（去骨）",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 个（小）",
+        "grams": 80,
+        "kcal": 117
+      },
+      {
+        "desc": "1 个（中等）",
+        "grams": 120,
+        "kcal": 175
+      },
+      {
+        "desc": "1 个（大）",
+        "grams": 160,
+        "kcal": 234
+      }
+    ]
+  },
+  {
+    "name": "鸡翅",
+    "kcal100": 202,
+    "unit": "g",
+    "ref": "鸡翅",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个",
+        "grams": 50,
+        "kcal": 101
+      },
+      {
+        "desc": "3 个",
+        "grams": 150,
+        "kcal": 303
+      }
+    ]
+  },
+  {
+    "name": "鸡爪",
+    "kcal100": 254,
+    "unit": "g",
+    "ref": "鸡爪",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个",
+        "grams": 40,
+        "kcal": 102
+      },
+      {
+        "desc": "3 个",
+        "grams": 120,
+        "kcal": 305
+      }
+    ]
+  },
+  {
+    "name": "牛肉",
+    "kcal100": 160,
+    "unit": "g",
+    "ref": "牛肉（代表值，fat9g）",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 小块",
+        "grams": 50,
+        "kcal": 80
+      },
+      {
+        "desc": "1 份（约 1 个巴掌）",
+        "grams": 100,
+        "kcal": 160
+      }
+    ]
+  },
+  {
+    "name": "猪肉",
+    "kcal100": 331,
+    "unit": "g",
+    "ref": "猪肉（代表值，fat30g）",
+    "note": "肥瘦；里脊 150，五花 349",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 小块",
+        "grams": 50,
+        "kcal": 166
+      },
+      {
+        "desc": "1 份（约 1 个巴掌）",
+        "grams": 100,
+        "kcal": 331
+      }
+    ]
+  },
+  {
+    "name": "五花肉",
+    "kcal100": 349,
+    "unit": "g",
+    "ref": "猪肉（奶脯）［软五花，猪夹心］",
+    "note": "生重；红烧肉做法另计",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 小块",
+        "grams": 50,
+        "kcal": 175
+      },
+      {
+        "desc": "1 份",
+        "grams": 100,
+        "kcal": 349
+      }
+    ]
+  },
+  {
+    "name": "猪里脊",
+    "kcal100": 150,
+    "unit": "g",
+    "ref": "猪肉（里脊）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份",
+        "grams": 100,
+        "kcal": 150
+      }
+    ]
+  },
+  {
+    "name": "羊肉",
+    "kcal100": 139,
+    "unit": "g",
+    "ref": "羊肉（代表值，fat7g）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份",
+        "grams": 100,
+        "kcal": 139
+      }
+    ]
+  },
+  {
+    "name": "猪肝",
+    "kcal100": 126,
+    "unit": "g",
+    "ref": "猪肝",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 小块",
+        "grams": 50,
+        "kcal": 63
+      },
+      {
+        "desc": "1 份",
+        "grams": 100,
+        "kcal": 126
+      }
+    ]
+  },
+  {
+    "name": "火腿肠",
+    "kcal100": 212,
+    "unit": "g",
+    "ref": "火腿肠",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 根",
+        "grams": 45,
+        "kcal": 95
+      },
+      {
+        "desc": "1 根（大）",
+        "grams": 80,
+        "kcal": 170
+      }
+    ]
+  },
+  {
+    "name": "香肠",
+    "kcal100": 508,
+    "unit": "g",
+    "ref": "香肠",
+    "note": "广式腊肠，油脂高",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 根",
+        "grams": 30,
+        "kcal": 152
+      },
+      {
+        "desc": "1 根（大）",
+        "grams": 50,
+        "kcal": 254
+      }
+    ]
+  },
+  {
+    "name": "培根",
+    "kcal100": 181,
+    "unit": "g",
+    "ref": "腊肉（培根）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 片",
+        "grams": 25,
+        "kcal": 45
+      },
+      {
+        "desc": "3 片",
+        "grams": 75,
+        "kcal": 136
+      }
+    ]
+  },
+  {
+    "name": "草鱼",
+    "kcal100": 113,
+    "unit": "g",
+    "ref": "草鱼",
+    "note": "可食部（去骨）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 块",
+        "grams": 100,
+        "kcal": 113
+      },
+      {
+        "desc": "1 份",
+        "grams": 150,
+        "kcal": 170
+      }
+    ]
+  },
+  {
+    "name": "带鱼",
+    "kcal100": 127,
+    "unit": "g",
+    "ref": "带鱼［白带鱼、刀鱼］",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 块（约 10cm）",
+        "grams": 80,
+        "kcal": 102
+      },
+      {
+        "desc": "3 块",
+        "grams": 240,
+        "kcal": 305
+      }
+    ]
+  },
+  {
+    "name": "鲈鱼",
+    "kcal100": 105,
+    "unit": "g",
+    "ref": "鲈鱼［鲈花］",
+    "note": "可食部（去骨）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 条（小）",
+        "grams": 250,
+        "kcal": 263
+      },
+      {
+        "desc": "1 条（中等）",
+        "grams": 400,
+        "kcal": 420
+      }
+    ]
+  },
+  {
+    "name": "三文鱼",
+    "kcal100": 139,
+    "unit": "g",
+    "ref": "鲑鱼［大马哈鱼、三文鱼］",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 片（刺身）",
+        "grams": 20,
+        "kcal": 28
+      },
+      {
+        "desc": "1 份",
+        "grams": 100,
+        "kcal": 139
+      }
+    ]
+  },
+  {
+    "name": "虾",
+    "kcal100": 93,
+    "unit": "g",
+    "ref": "对虾",
+    "note": "可食部（去壳）",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 只（中等）",
+        "grams": 20,
+        "kcal": 19
+      },
+      {
+        "desc": "10 只",
+        "grams": 200,
+        "kcal": 186
+      }
+    ]
+  },
+  {
+    "name": "螃蟹",
+    "kcal100": 95,
+    "unit": "g",
+    "ref": "海蟹",
+    "note": "可食部（去壳）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 只（中等）",
+        "grams": 100,
+        "kcal": 95
+      }
+    ]
+  },
+  {
+    "name": "纯牛奶",
+    "kcal100": 65,
+    "unit": "ml",
+    "ref": "纯牛奶（代表值，全脂）",
+    "note": "脱脂约 33 千卡/100ml；密度按 1 计",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 杯",
+        "grams": 200,
+        "kcal": 130
+      },
+      {
+        "desc": "1 盒",
+        "grams": 250,
+        "kcal": 163
+      }
+    ]
+  },
+  {
+    "name": "酸奶",
+    "kcal100": 70,
+    "unit": "g",
+    "ref": "酸奶",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 小杯",
+        "grams": 100,
+        "kcal": 70
+      },
+      {
+        "desc": "1 杯（大）",
+        "grams": 200,
+        "kcal": 140
+      }
+    ]
+  },
+  {
+    "name": "奶酪",
+    "kcal100": 328,
+    "unit": "g",
+    "ref": "奶酪［干酪］",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 片",
+        "grams": 20,
+        "kcal": 66
+      },
+      {
+        "desc": "1 小块",
+        "grams": 30,
+        "kcal": 98
+      }
+    ]
+  },
+  {
+    "name": "豆浆",
+    "kcal100": 31,
+    "unit": "ml",
+    "ref": "豆浆",
+    "note": "无糖；甜豆浆约 34",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 杯",
+        "grams": 250,
+        "kcal": 78
+      },
+      {
+        "desc": "1 袋（大）",
+        "grams": 400,
+        "kcal": 124
+      }
+    ]
+  },
+  {
+    "name": "豆腐",
+    "kcal100": 84,
+    "unit": "g",
+    "ref": "豆腐（代表值）",
+    "note": "北豆腐；内酯豆腐约 50",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 块（小）",
+        "grams": 100,
+        "kcal": 84
+      },
+      {
+        "desc": "1 块（中等）",
+        "grams": 200,
+        "kcal": 168
+      }
+    ]
+  },
+  {
+    "name": "豆腐干",
+    "kcal100": 197,
+    "unit": "g",
+    "ref": "豆腐干（代表值）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 块",
+        "grams": 50,
+        "kcal": 99
+      },
+      {
+        "desc": "1 份",
+        "grams": 100,
+        "kcal": 197
+      }
+    ]
+  },
+  {
+    "name": "腐竹",
+    "kcal100": 461,
+    "unit": "g",
+    "ref": "腐竹",
+    "note": "干重；泡发后重量约 3 倍，热量按干重算",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份（干）",
+        "grams": 30,
+        "kcal": 138
+      },
+      {
+        "desc": "1 把（干）",
+        "grams": 50,
+        "kcal": 231
+      }
+    ]
+  },
+  {
+    "name": "素鸡",
+    "kcal100": 194,
+    "unit": "g",
+    "ref": "素鸡",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 块",
+        "grams": 100,
+        "kcal": 194
+      }
+    ]
+  },
+  {
+    "name": "大白菜",
+    "kcal100": 20,
+    "unit": "g",
+    "ref": "大白菜（代表值）",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 片（大叶）",
+        "grams": 100,
+        "kcal": 20
+      },
+      {
+        "desc": "1 份",
+        "grams": 200,
+        "kcal": 40
+      }
+    ]
+  },
+  {
+    "name": "油菜",
+    "kcal100": 14,
+    "unit": "g",
+    "ref": "油菜",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份",
+        "grams": 200,
+        "kcal": 28
+      }
+    ]
+  },
+  {
+    "name": "菠菜",
+    "kcal100": 28,
+    "unit": "g",
+    "ref": "菠菜（鲜）［赤根菜］",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 把",
+        "grams": 300,
+        "kcal": 84
+      },
+      {
+        "desc": "1 份",
+        "grams": 200,
+        "kcal": 56
+      }
+    ]
+  },
+  {
+    "name": "生菜",
+    "kcal100": 12,
+    "unit": "g",
+    "ref": "生菜［叶用莴苣］",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份",
+        "grams": 100,
+        "kcal": 12
+      }
+    ]
+  },
+  {
+    "name": "西兰花",
+    "kcal100": 27,
+    "unit": "g",
+    "ref": "西兰花［绿菜花］",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 小朵",
+        "grams": 30,
+        "kcal": 8
+      },
+      {
+        "desc": "1 份",
+        "grams": 200,
+        "kcal": 54
+      }
+    ]
+  },
+  {
+    "name": "青椒",
+    "kcal100": 18,
+    "unit": "g",
+    "ref": "甜椒［灯笼椒、柿子椒］",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个",
+        "grams": 80,
+        "kcal": 14
+      }
+    ]
+  },
+  {
+    "name": "黄瓜",
+    "kcal100": 16,
+    "unit": "g",
+    "ref": "黄瓜（鲜）［胡瓜］",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 根（小）",
+        "grams": 150,
+        "kcal": 24
+      },
+      {
+        "desc": "1 根（中等）",
+        "grams": 200,
+        "kcal": 32
+      }
+    ]
+  },
+  {
+    "name": "番茄",
+    "kcal100": 15,
+    "unit": "g",
+    "ref": "番茄［西红柿］",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 个（小）",
+        "grams": 150,
+        "kcal": 23
+      },
+      {
+        "desc": "1 个（中等）",
+        "grams": 200,
+        "kcal": 30
+      },
+      {
+        "desc": "1 个（大）",
+        "grams": 300,
+        "kcal": 45
+      }
+    ]
+  },
+  {
+    "name": "圣女果",
+    "kcal100": 25,
+    "unit": "g",
+    "ref": "樱桃番茄［小西红柿］",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 个",
+        "grams": 12,
+        "kcal": 3
+      },
+      {
+        "desc": "10 个",
+        "grams": 120,
+        "kcal": 30
+      }
+    ]
+  },
+  {
+    "name": "茄子",
+    "kcal100": 23,
+    "unit": "g",
+    "ref": "茄子（代表值）",
+    "note": "生重；红烧茄子用油多，热量另计",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份",
+        "grams": 200,
+        "kcal": 46
+      },
+      {
+        "desc": "1 个（中等）",
+        "grams": 300,
+        "kcal": 69
+      }
+    ]
+  },
+  {
+    "name": "四季豆",
+    "kcal100": 31,
+    "unit": "g",
+    "ref": "四季豆（菜豆）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份",
+        "grams": 200,
+        "kcal": 62
+      }
+    ]
+  },
+  {
+    "name": "豆角",
+    "kcal100": 34,
+    "unit": "g",
+    "ref": "豆角",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份",
+        "grams": 200,
+        "kcal": 68
+      }
+    ]
+  },
+  {
+    "name": "胡萝卜",
+    "kcal100": 32,
+    "unit": "g",
+    "ref": "胡萝卜",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 根（小）",
+        "grams": 100,
+        "kcal": 32
+      },
+      {
+        "desc": "1 根（中等）",
+        "grams": 150,
+        "kcal": 48
+      }
+    ]
+  },
+  {
+    "name": "冬瓜",
+    "kcal100": 10,
+    "unit": "g",
+    "ref": "冬瓜",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份",
+        "grams": 200,
+        "kcal": 20
+      }
+    ]
+  },
+  {
+    "name": "南瓜",
+    "kcal100": 23,
+    "unit": "g",
+    "ref": "南瓜（鲜）［倭瓜，番瓜］",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份",
+        "grams": 200,
+        "kcal": 46
+      }
+    ]
+  },
+  {
+    "name": "丝瓜",
+    "kcal100": 20,
+    "unit": "g",
+    "ref": "丝瓜",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 根",
+        "grams": 200,
+        "kcal": 40
+      }
+    ]
+  },
+  {
+    "name": "洋葱",
+    "kcal100": 40,
+    "unit": "g",
+    "ref": "洋葱（鲜）［葱头］",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个",
+        "grams": 150,
+        "kcal": 60
+      }
+    ]
+  },
+  {
+    "name": "韭菜",
+    "kcal100": 25,
+    "unit": "g",
+    "ref": "韭菜",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份",
+        "grams": 100,
+        "kcal": 25
+      }
+    ]
+  },
+  {
+    "name": "芹菜",
+    "kcal100": 13,
+    "unit": "g",
+    "ref": "芹菜（茎）［旱芹，药芹］",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份",
+        "grams": 150,
+        "kcal": 20
+      }
+    ]
+  },
+  {
+    "name": "香菇",
+    "kcal100": 26,
+    "unit": "g",
+    "ref": "香菇（鲜）［香蕈，冬菇］",
+    "note": "鲜重；干香菇 274 千卡/100g",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 朵",
+        "grams": 20,
+        "kcal": 5
+      },
+      {
+        "desc": "1 份",
+        "grams": 100,
+        "kcal": 26
+      }
+    ]
+  },
+  {
+    "name": "木耳",
+    "kcal100": 27,
+    "unit": "g",
+    "ref": "木耳（水发）［黑木耳，云耳］",
+    "note": "水发重；干木耳 265 千卡/100g，勿混用",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份（水发）",
+        "grams": 100,
+        "kcal": 27
+      }
+    ]
+  },
+  {
+    "name": "海带",
+    "kcal100": 16,
+    "unit": "g",
+    "ref": "海带（浸）［江白菜，昆布］",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份（浸）",
+        "grams": 100,
+        "kcal": 16
+      }
+    ]
+  },
+  {
+    "name": "黄豆芽",
+    "kcal100": 47,
+    "unit": "g",
+    "ref": "黄豆芽",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份",
+        "grams": 150,
+        "kcal": 71
+      }
+    ]
+  },
+  {
+    "name": "绿豆芽",
+    "kcal100": 16,
+    "unit": "g",
+    "ref": "绿豆芽",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份",
+        "grams": 150,
+        "kcal": 24
+      }
+    ]
+  },
+  {
+    "name": "苹果",
+    "kcal100": 53,
+    "unit": "g",
+    "ref": "苹果（代表值）",
+    "note": "可食部（去核）",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 个（小）",
+        "grams": 150,
+        "kcal": 80
+      },
+      {
+        "desc": "1 个（中等）",
+        "grams": 200,
+        "kcal": 106
+      },
+      {
+        "desc": "1 个（大）",
+        "grams": 300,
+        "kcal": 159
+      }
+    ]
+  },
+  {
+    "name": "香蕉",
+    "kcal100": 93,
+    "unit": "g",
+    "ref": "香蕉［甘蕉］",
+    "note": "可食部（去皮）",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 根（小）",
+        "grams": 90,
+        "kcal": 84
+      },
+      {
+        "desc": "1 根（中等）",
+        "grams": 118,
+        "kcal": 110
+      },
+      {
+        "desc": "1 根（大）",
+        "grams": 150,
+        "kcal": 140
+      }
+    ]
+  },
+  {
+    "name": "橙子",
+    "kcal100": 48,
+    "unit": "g",
+    "ref": "橙",
+    "note": "可食部（去皮）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个（中等）",
+        "grams": 200,
+        "kcal": 96
+      },
+      {
+        "desc": "1 个（大）",
+        "grams": 300,
+        "kcal": 144
+      }
+    ]
+  },
+  {
+    "name": "橘子",
+    "kcal100": 44,
+    "unit": "g",
+    "ref": "橘柑子［宽皮桂］",
+    "note": "可食部（去皮）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个",
+        "grams": 100,
+        "kcal": 44
+      },
+      {
+        "desc": "3 个",
+        "grams": 300,
+        "kcal": 132
+      }
+    ]
+  },
+  {
+    "name": "梨",
+    "kcal100": 51,
+    "unit": "g",
+    "ref": "梨（代表值）",
+    "note": "可食部（去核）",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 个（小）",
+        "grams": 150,
+        "kcal": 77
+      },
+      {
+        "desc": "1 个（中等）",
+        "grams": 250,
+        "kcal": 128
+      }
+    ]
+  },
+  {
+    "name": "桃",
+    "kcal100": 42,
+    "unit": "g",
+    "ref": "桃（代表值）",
+    "note": "可食部（去核）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个（中等）",
+        "grams": 200,
+        "kcal": 84
+      }
+    ]
+  },
+  {
+    "name": "葡萄",
+    "kcal100": 45,
+    "unit": "g",
+    "ref": "葡萄（代表值）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "10 颗",
+        "grams": 100,
+        "kcal": 45
+      },
+      {
+        "desc": "1 串",
+        "grams": 200,
+        "kcal": 90
+      }
+    ]
+  },
+  {
+    "name": "西瓜",
+    "kcal100": 31,
+    "unit": "g",
+    "ref": "西瓜（代表值）",
+    "note": "可食部（去皮）",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 块（小）",
+        "grams": 200,
+        "kcal": 62
+      },
+      {
+        "desc": "1 块（中等）",
+        "grams": 300,
+        "kcal": 93
+      }
+    ]
+  },
+  {
+    "name": "草莓",
+    "kcal100": 32,
+    "unit": "g",
+    "ref": "草莓［洋莓，凤阳草莓］",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 个",
+        "grams": 15,
+        "kcal": 5
+      },
+      {
+        "desc": "10 个",
+        "grams": 150,
+        "kcal": 48
+      }
+    ]
+  },
+  {
+    "name": "猕猴桃",
+    "kcal100": 61,
+    "unit": "g",
+    "ref": "中华猕猴桃［毛叶猕猴桃］",
+    "note": "可食部（去皮）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个（中等）",
+        "grams": 100,
+        "kcal": 61
+      },
+      {
+        "desc": "1 个（大）",
+        "grams": 150,
+        "kcal": 92
+      }
+    ]
+  },
+  {
+    "name": "芒果",
+    "kcal100": 35,
+    "unit": "g",
+    "ref": "芒果［抹猛果，望果］",
+    "note": "可食部（去皮去核）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个（小）",
+        "grams": 150,
+        "kcal": 53
+      },
+      {
+        "desc": "1 个（大）",
+        "grams": 300,
+        "kcal": 105
+      }
+    ]
+  },
+  {
+    "name": "火龙果",
+    "kcal100": 55,
+    "unit": "g",
+    "ref": "火龙果［仙蜜果、红龙果］",
+    "note": "可食部（去皮）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个（中等）",
+        "grams": 300,
+        "kcal": 165
+      }
+    ]
+  },
+  {
+    "name": "菠萝",
+    "kcal100": 44,
+    "unit": "g",
+    "ref": "菠萝［凤梨，地菠萝］",
+    "note": "可食部（去皮）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 片",
+        "grams": 100,
+        "kcal": 44
+      },
+      {
+        "desc": "1 份",
+        "grams": 200,
+        "kcal": 88
+      }
+    ]
+  },
+  {
+    "name": "蓝莓",
+    "kcal100": 57,
+    "unit": "g",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "10 颗",
+        "grams": 20,
+        "kcal": 11
+      },
+      {
+        "desc": "1 盒",
+        "grams": 125,
+        "kcal": 71
+      }
+    ]
+  },
+  {
+    "name": "柠檬",
+    "kcal100": 37,
+    "unit": "g",
+    "ref": "柠檬",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个",
+        "grams": 100,
+        "kcal": 37
+      }
+    ]
+  },
+  {
+    "name": "核桃",
+    "kcal100": 646,
+    "unit": "g",
+    "ref": "核桃（干）［胡桃］",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 个（去壳）",
+        "grams": 10,
+        "kcal": 65
+      },
+      {
+        "desc": "1 把",
+        "grams": 30,
+        "kcal": 194
+      }
+    ]
+  },
+  {
+    "name": "花生仁",
+    "kcal100": 589,
+    "unit": "g",
+    "ref": "花生仁（炒）",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "10 粒",
+        "grams": 10,
+        "kcal": 59
+      },
+      {
+        "desc": "1 把",
+        "grams": 30,
+        "kcal": 177
+      }
+    ]
+  },
+  {
+    "name": "葵花子",
+    "kcal100": 625,
+    "unit": "g",
+    "ref": "葵花子（炒，咸）",
+    "note": "可食部（去壳）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 把",
+        "grams": 30,
+        "kcal": 188
+      }
+    ]
+  },
+  {
+    "name": "腰果",
+    "kcal100": 615,
+    "unit": "g",
+    "ref": "腰果（熟）",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "10 粒",
+        "grams": 15,
+        "kcal": 92
+      },
+      {
+        "desc": "1 把",
+        "grams": 30,
+        "kcal": 185
+      }
+    ]
+  },
+  {
+    "name": "开心果",
+    "kcal100": 631,
+    "unit": "g",
+    "ref": "开心果（熟）",
+    "note": "可食部（去壳）",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "10 粒",
+        "grams": 15,
+        "kcal": 95
+      },
+      {
+        "desc": "1 把",
+        "grams": 30,
+        "kcal": 189
+      }
+    ]
+  },
+  {
+    "name": "杏仁",
+    "kcal100": 578,
+    "unit": "g",
+    "ref": "杏仁",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "10 粒",
+        "grams": 15,
+        "kcal": 87
+      },
+      {
+        "desc": "1 把",
+        "grams": 30,
+        "kcal": 173
+      }
+    ]
+  },
+  {
+    "name": "芝麻",
+    "kcal100": 536,
+    "unit": "g",
+    "ref": "芝麻子（白）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 勺",
+        "grams": 10,
+        "kcal": 54
+      }
+    ]
+  },
+  {
+    "name": "板栗",
+    "kcal100": 214,
+    "unit": "g",
+    "ref": "栗子（熟）［板栗］",
+    "note": "可食部（去壳）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个",
+        "grams": 15,
+        "kcal": 32
+      },
+      {
+        "desc": "5 个",
+        "grams": 75,
+        "kcal": 161
+      }
+    ]
+  },
+  {
+    "name": "可乐",
+    "kcal100": 43,
+    "unit": "ml",
+    "note": "含糖款；无糖可乐约 0.4 千卡/100ml，热量过低无法录入（可自建食物）",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 罐",
+        "grams": 330,
+        "kcal": 142
+      },
+      {
+        "desc": "1 瓶",
+        "grams": 500,
+        "kcal": 215
+      }
+    ]
+  },
+  {
+    "name": "雪碧",
+    "kcal100": 43,
+    "unit": "ml",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 罐",
+        "grams": 330,
+        "kcal": 142
+      },
+      {
+        "desc": "1 瓶",
+        "grams": 500,
+        "kcal": 215
+      }
+    ]
+  },
+  {
+    "name": "橙汁",
+    "kcal100": 45,
+    "unit": "ml",
+    "note": "100% 果汁；含糖果汁饮料更高",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 杯",
+        "grams": 250,
+        "kcal": 113
+      }
+    ]
+  },
+  {
+    "name": "啤酒",
+    "kcal100": 43,
+    "unit": "ml",
+    "note": "普通 3–4 度啤酒",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 罐",
+        "grams": 330,
+        "kcal": 142
+      },
+      {
+        "desc": "1 瓶",
+        "grams": 500,
+        "kcal": 215
+      }
+    ]
+  },
+  {
+    "name": "白酒",
+    "kcal100": 298,
+    "unit": "ml",
+    "note": "52 度；按酒精 7 千卡/克计",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 杯（小）",
+        "grams": 25,
+        "kcal": 75
+      },
+      {
+        "desc": "1 两",
+        "grams": 50,
+        "kcal": 149
+      }
+    ]
+  },
+  {
+    "name": "红酒",
+    "kcal100": 85,
+    "unit": "ml",
+    "note": "12 度左右",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 杯",
+        "grams": 150,
+        "kcal": 128
+      }
+    ]
+  },
+  {
+    "name": "奶茶",
+    "kcal100": 80,
+    "unit": "ml",
+    "note": "珍珠奶茶全糖；三分糖约减 20–30%",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 中杯",
+        "grams": 500,
+        "kcal": 400
+      },
+      {
+        "desc": "1 大杯",
+        "grams": 700,
+        "kcal": 560
+      }
+    ]
+  },
+  {
+    "name": "拿铁",
+    "kcal100": 45,
+    "unit": "ml",
+    "note": "全脂奶；美式约 2 千卡/100ml",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 中杯",
+        "grams": 350,
+        "kcal": 158
+      },
+      {
+        "desc": "1 大杯",
+        "grams": 470,
+        "kcal": 212
+      }
+    ]
+  },
+  {
+    "name": "薯片",
+    "kcal100": 536,
+    "unit": "g",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 小袋",
+        "grams": 70,
+        "kcal": 375
+      },
+      {
+        "desc": "1 桶（大）",
+        "grams": 104,
+        "kcal": 557
+      }
+    ]
+  },
+  {
+    "name": "巧克力",
+    "kcal100": 589,
+    "unit": "g",
+    "note": "牛奶巧克力",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 块（小）",
+        "grams": 10,
+        "kcal": 59
+      },
+      {
+        "desc": "1 板",
+        "grams": 100,
+        "kcal": 589
+      }
+    ]
+  },
+  {
+    "name": "饼干",
+    "kcal100": 435,
+    "unit": "g",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 片",
+        "grams": 10,
+        "kcal": 44
+      },
+      {
+        "desc": "1 包",
+        "grams": 100,
+        "kcal": 435
+      }
+    ]
+  },
+  {
+    "name": "蛋糕",
+    "kcal100": 350,
+    "unit": "g",
+    "note": "奶油蛋糕",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 块",
+        "grams": 100,
+        "kcal": 350
+      },
+      {
+        "desc": "1 份（大）",
+        "grams": 150,
+        "kcal": 525
+      }
+    ]
+  },
+  {
+    "name": "汉堡",
+    "kcal100": 260,
+    "unit": "g",
+    "note": "牛肉汉堡；鸡腿堡约 280",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 个",
+        "grams": 250,
+        "kcal": 650
+      }
+    ]
+  },
+  {
+    "name": "薯条",
+    "kcal100": 300,
+    "unit": "g",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 中份",
+        "grams": 115,
+        "kcal": 345
+      },
+      {
+        "desc": "1 大份",
+        "grams": 150,
+        "kcal": 450
+      }
+    ]
+  },
+  {
+    "name": "方便面",
+    "kcal100": 473,
+    "unit": "g",
+    "note": "油炸面饼，干重",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 包（含调料）",
+        "grams": 100,
+        "kcal": 473
+      },
+      {
+        "desc": "1 桶",
+        "grams": 110,
+        "kcal": 520
+      }
+    ]
+  },
+  {
+    "name": "麻辣烫",
+    "kcal100": 90,
+    "unit": "g",
+    "note": "混合食材估算，含汤底油",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份",
+        "grams": 500,
+        "kcal": 450
+      }
+    ]
+  },
+  {
+    "name": "螺蛳粉",
+    "kcal100": 150,
+    "unit": "g",
+    "note": "含汤；米粉与配料按熟重估",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 碗",
+        "grams": 500,
+        "kcal": 750
+      }
+    ]
+  },
+  {
+    "name": "番茄炒蛋",
+    "kcal100": 85,
+    "unit": "g",
+    "note": "2 蛋 + 1 番茄 + 10g 油 ≈ 250g",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "半份",
+        "grams": 125,
+        "kcal": 106
+      },
+      {
+        "desc": "1 份（家常盘）",
+        "grams": 250,
+        "kcal": 213
+      }
+    ]
+  },
+  {
+    "name": "蛋炒饭",
+    "kcal100": 160,
+    "unit": "g",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 小碗",
+        "grams": 200,
+        "kcal": 320
+      },
+      {
+        "desc": "1 碗",
+        "grams": 300,
+        "kcal": 480
+      }
+    ]
+  },
+  {
+    "name": "红烧肉",
+    "kcal100": 350,
+    "unit": "g",
+    "note": "五花肉红烧，含糖油",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 块",
+        "grams": 30,
+        "kcal": 105
+      },
+      {
+        "desc": "1 份",
+        "grams": 150,
+        "kcal": 525
+      }
+    ]
+  },
+  {
+    "name": "宫保鸡丁",
+    "kcal100": 180,
+    "unit": "g",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份",
+        "grams": 200,
+        "kcal": 360
+      }
+    ]
+  },
+  {
+    "name": "鱼香肉丝",
+    "kcal100": 190,
+    "unit": "g",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份",
+        "grams": 200,
+        "kcal": 380
+      }
+    ]
+  },
+  {
+    "name": "麻婆豆腐",
+    "kcal100": 130,
+    "unit": "g",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 份",
+        "grams": 250,
+        "kcal": 325
+      }
+    ]
+  },
+  {
+    "name": "雪糕",
+    "kcal100": 127,
+    "unit": "g",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 支",
+        "grams": 70,
+        "kcal": 89
+      },
+      {
+        "desc": "1 支（大）",
+        "grams": 100,
+        "kcal": 127
+      }
+    ]
+  },
+  {
+    "name": "月饼",
+    "kcal100": 420,
+    "unit": "g",
+    "note": "广式莲蓉",
+    "default": 1,
+    "portions": [
+      {
+        "desc": "1 个（小）",
+        "grams": 50,
+        "kcal": 210
+      },
+      {
+        "desc": "1 个（中等）",
+        "grams": 100,
+        "kcal": 420
+      }
+    ]
+  },
+  {
+    "name": "蜂蜜",
+    "kcal100": 321,
+    "unit": "g",
+    "default": 0,
+    "portions": [
+      {
+        "desc": "1 勺",
+        "grams": 15,
+        "kcal": 48
+      }
+    ]
+  }
+]

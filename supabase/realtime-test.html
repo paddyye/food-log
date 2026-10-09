@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Supabase 连通性自检</title>
+<style>
+  body { font: 15px/1.6 -apple-system, "PingFang SC", sans-serif; max-width: 720px; margin: 20px auto; padding: 0 16px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p.hint { color: #666; margin: 4px 0 16px; font-size: 14px; }
+  button { font-size: 15px; padding: 8px 14px; margin: 4px 6px 4px 0; }
+  input { font-size: 15px; padding: 8px; width: 120px; }
+  .status { margin: 14px 0; }
+  h2 { font-size: 16px; margin: 18px 0 6px; }
+  .status b { font-weight: 600; }
+  .ok { color: #15803d; }
+  .err { color: #b91c1c; }
+  #log { background: #111; color: #eee; padding: 12px; border-radius: 8px; height: 340px; overflow: auto;
+         font: 13px/1.55 ui-monospace, Menlo, monospace; white-space: pre-wrap; }
+  .ev { color: #fde047; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #16181c; color: #e8e8e8; }
+    p.hint { color: #999; }
+    button, input { background: #26292f; color: #eee; border: 1px solid #3a3f47; border-radius: 6px; }
+    .ok { color: #4ade80; } .err { color: #f87171; }
+  }
+</style>
+</head>
+<body>
+<h1>Supabase 连通性自检</h1>
+<p class="hint">测三件事：① 匿名登录（HTTPS）② 写数据（REST）③ 实时订阅（WebSocket）。全部通过才说明这套方案可行。</p>
+
+<p>
+  <input id="nick" value="测试-A" maxlength="20" aria-label="昵称">
+  <button id="btnLogin">① 匿名登录</button>
+  <button id="btnInsert">② 插入测试记录</button>
+  <button id="btnDelete">③ 删除我的测试记录</button>
+</p>
+<p class="status">登录：<b id="sAuth">未开始</b>　·　实时订阅：<b id="sRt">未开始</b></p>
+
+<h2>运行日志（就是下面这个黑色方框）</h2>
+<pre id="log"></pre>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var SUPABASE_URL = 'https://sdiozaasoynjfypphmgq.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_B1IMfWK3rvjH7-IuuaHpfQ_WT9VXVqP';
+  var TEST_NAME = '__PoC 测试__';
+
+  var logEl = document.getElementById('log');
+  var sAuth = document.getElementById('sAuth');
+  var sRt = document.getElementById('sRt');
+  var supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  var me = null;
+  var evCount = 0;
+
+  function log(msg, cls) {
+    var t = new Date().toTimeString().slice(0, 8);
+    var line = document.createElement('div');
+    if (cls) line.className = cls;
+    line.textContent = '[' + t + '] ' + msg;
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function errText(e) { return e ? (e.message || JSON.stringify(e)) : '(无)'; }
+
+  function todayLocal() {
+    var d = new Date();
+    return d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0');
+  }
+
+  // 出口 IP 检测：判断当前浏览器是否走了代理（loc=CN 才是"和家人的手机一样"的环境）
+  function checkEgress() {
+    fetch('https://www.cloudflare.com/cdn-cgi/trace', { cache: 'no-store' }).then(function (res) {
+      return res.text();
+    }).then(function (text) {
+      var m = {};
+      text.split('\n').forEach(function (line) {
+        var i = line.indexOf('=');
+        if (i > 0) m[line.slice(0, i)] = line.slice(i + 1);
+      });
+      var direct = (m.loc === 'CN');
+      log('环境检测：出口 IP = ' + m.ip + '，地区 = ' + m.loc +
+          (direct ? '（直连 ✓ 与家人设备相同）' : '（⚠️ 走了代理，测试结果不能代表家人环境）'),
+          direct ? 'ok' : 'err');
+    }).catch(function (e) {
+      log('环境检测失败（不影响下面的测试）：' + errText(e), 'err');
+    });
+  }
+
+  document.getElementById('btnLogin').addEventListener('click', function () {
+    var nick = document.getElementById('nick').value.trim() || '匿名';
+    sAuth.textContent = '登录中…';
+    sAuth.className = '';
+    supa.auth.signInAnonymously({ options: { data: { nickname: nick } } }).then(function (res) {
+      if (res.error) {
+        sAuth.textContent = '失败';
+        sAuth.className = 'err';
+        log('① 登录失败：' + errText(res.error), 'err');
+        return;
+      }
+      me = { id: res.data.user.id, nick: nick };
+      sAuth.textContent = 'OK（' + nick + '）';
+      sAuth.className = 'ok';
+      log('① 匿名登录成功：user_id=' + me.id + '，昵称=' + nick, 'ok');
+      subscribe();
+    });
+  });
+
+  function subscribe() {
+    sRt.textContent = '连接中…';
+    sRt.className = '';
+    var chan = 'poc-' + Math.random().toString(36).slice(2, 8);
+    supa.channel(chan)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'entries' }, function (p) {
+        var r = (p.new && p.new.id) ? p.new : p.old;
+        evCount++;
+        log('③ 实时事件：' + p.eventType + '  id=' + (r && r.id) +
+            '  「' + (r && r.name) + '」  作者=' + (r && r.author_name), 'ev');
+        sRt.textContent = 'OK（已收到 ' + evCount + ' 条）';
+        sRt.className = 'ok';
+      })
+      .subscribe(function (status, err) {
+        log('实时订阅状态：' + status + (err ? ' / ' + errText(err) : ''),
+            status === 'SUBSCRIBED' ? 'ok' : '');
+        if (status === 'SUBSCRIBED') {
+          sRt.textContent = 'OK（已连上，等待事件）';
+          sRt.className = 'ok';
+        } else if (status !== 'CLOSED') {
+          sRt.textContent = status;
+          sRt.className = 'err';
+        }
+      });
+    setTimeout(function () {
+      if (sRt.className !== 'ok') {
+        log('⚠️ 15 秒内未订阅成功：WebSocket 可能被网络阻断——备选方案是改用轮询', 'err');
+      }
+    }, 15000);
+  }
+
+  document.getElementById('btnInsert').addEventListener('click', function () {
+    if (!me) { log('先点「① 匿名登录」', 'err'); return; }
+    var row = {
+      entry_date: todayLocal(),
+      meal: 'snack',
+      name: TEST_NAME,
+      calories: 1,
+      amount: 100,
+      unit: 'g',
+      kcal100: 1,
+      author_name: me.nick
+    };
+    supa.from('entries').insert(row).select().then(function (res) {
+      if (res.error) log('② 插入失败：' + errText(res.error), 'err');
+      else log('② 插入成功：id=' + res.data[0].id + '（另一台设备应立刻收到实时事件）', 'ok');
+    });
+  });
+
+  document.getElementById('btnDelete').addEventListener('click', function () {
+    if (!me) { log('先点「① 匿名登录」', 'err'); return; }
+    supa.from('entries').delete().eq('name', TEST_NAME).select().then(function (res) {
+      if (res.error) log('删除失败：' + errText(res.error), 'err');
+      else log('已删除测试记录 ' + res.data.length + ' 条', 'ok');
+    });
+  });
+
+  log('页面就绪，请先点「① 匿名登录」。');
+  checkEgress();
+})();
+</script>
+</body>
+</html>

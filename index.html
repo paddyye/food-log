@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f9f9f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)">
+<title>食物记录</title>
+<link rel="stylesheet" href="app.css">
+<style>
+  /* ============ 顶部：今天总摄入（hero 大数字） ============ */
+  .today { position: relative; padding: 8px 104px 0 4px; }   /* 右侧留白给「往日记录」入口 */
+  .page-nav {
+    position: absolute; top: 8px; right: 4px;
+    display: inline-flex; align-items: center;
+    min-height: 44px;
+    font-size: 13px; color: var(--accent); text-decoration: none;
+  }
+  .today-label { margin: 0; font-size: 14px; color: var(--ink-2); }
+  .today-value {
+    margin: 2px 0 0;
+    font-size: 52px; font-weight: 600; line-height: 1.15; letter-spacing: -0.01em;
+  }
+  .today-value .unit { margin-left: 6px; font-size: 18px; font-weight: 500; color: var(--ink-2); }
+  .today-sub { margin: 6px 0 0; font-size: 13px; color: var(--ink-2); }
+
+  /* ============ 表单 ============ */
+  form {
+    display: flex; flex-direction: column; gap: 16px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  fieldset.field { border: 0; margin: 0; padding: 0; }
+  label, legend { padding: 0; font-size: 13px; font-weight: 500; color: var(--ink-2); }
+
+  input[type="date"], input[type="text"], input[type="number"] {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    font: inherit;
+    font-size: 16px;               /* ≥16px：防 iOS 聚焦自动放大 */
+    color: var(--ink);
+    background: var(--plane);
+    border: 1px solid var(--control-border);
+    border-radius: 10px;
+  }
+  input::placeholder { color: var(--ink-3); }
+  input:focus-visible, button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .field-hint { margin: 0; font-size: 12px; color: var(--ink-2); }
+  .field-error { margin: 0; font-size: 13px; color: var(--danger); }
+
+  /* 餐次：4 个大按钮（原生 radio + label，一次点击完成） */
+  .meal-options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .meal-option { position: relative; display: block; cursor: pointer; }
+  .meal-option input { position: absolute; inset: 0; margin: 0; opacity: 0; pointer-events: none; }
+  .meal-option span {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 44px;
+    border: 1px solid var(--control-border);
+    border-radius: 10px;
+    background: var(--plane);
+    color: var(--ink-2);
+    font-size: 15px;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .meal-option input:checked + span {
+    background: var(--accent); border-color: var(--accent);
+    color: var(--on-accent); font-weight: 500;
+  }
+  .meal-option input:focus-visible + span {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .primary-btn {
+    min-height: 48px;
+    margin-top: 4px;
+    border: 0; border-radius: 10px;
+    background: var(--accent); color: var(--on-accent);
+    font: inherit; font-size: 16px; font-weight: 600;
+    cursor: pointer;
+    transition: filter .15s ease;
+  }
+  .primary-btn:hover { filter: brightness(1.06); }
+  .primary-btn:active { filter: brightness(.94); }
+
+  .link-btn {
+    align-self: flex-end;
+    min-height: 32px;
+    padding: 4px 2px;
+    border: 0; background: none;
+    color: var(--accent);
+    font: inherit; font-size: 13px;
+    cursor: pointer;
+  }
+
+  /* ============ 食物名称搜索下拉 ============ */
+  .combo { position: relative; }
+  .combo-panel {
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+    z-index: 5;                       /* 高于同级表单控件，低于 toast 的 10 */
+    margin: 0; padding: 4px;
+    max-height: min(60vh, 320px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .combo-option {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+    min-height: 44px; padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;                  /* iOS 可点击判定依赖它，非装饰 */
+    -webkit-tap-highlight-color: transparent;
+    user-select: none; -webkit-user-select: none;
+    touch-action: manipulation;
+    transition: background-color .12s ease;
+  }
+  .combo-option + .combo-option { margin-top: 2px; }
+  @media (hover: hover) {          /* 触屏避免“粘滞悬停”；悬停只做视觉反馈，不改变键盘激活行 */
+    .combo-option:hover { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  }
+  .combo-option.is-active {
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    box-shadow: inset 3px 0 0 var(--accent);
+  }
+  .combo-option-name {
+    flex: 1 1 auto; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: 15px;
+  }
+  .combo-option-kcal {
+    flex: none;
+    font-size: 13px; color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .combo-empty {
+    padding: 10px 12px;
+    font-size: 13px; color: var(--ink-2);
+  }
+  .combo-option-add {
+    margin-top: 4px;
+    border-top: 1px solid var(--hairline);
+    border-radius: 0 0 8px 8px;
+  }
+  .combo-option-add .combo-option-name { color: var(--accent); }
+  .combo-option-tag {
+    flex: none;
+    padding: 1px 5px;
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    font-size: 11px; color: var(--ink-2);
+  }
+  /* 常见份量行：食物名 · 1 根（中等，约 118g） ≈ 110 千卡
+     食物名不缩，窄屏优先把份量描述省略；行高/触摸目标/高亮沿用 .combo-option */
+  .combo-option.is-portion { gap: 6px; }
+  .combo-option.is-portion .combo-option-name { flex: 0 0 auto; }
+  .combo-option.is-portion .combo-option-sep { flex: none; color: var(--ink-3); }
+  .combo-option.is-portion .combo-option-portion {
+    flex: 1 1 auto; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: 13px; color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 添加新食物：内联编辑器 */
+  .combo-editor {
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+    z-index: 5;
+    display: flex; flex-direction: column; gap: 12px;
+    padding: 12px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .unit-options { grid-template-columns: repeat(2, 1fr); }
+  .combo-editor-actions { display: flex; gap: 8px; }
+  .combo-editor-actions .editor-btn { flex: 1; }
+  .editor-btn {
+    min-height: 44px; padding: 10px 12px;
+    border: 1px solid var(--control-border);
+    border-radius: 10px;
+    background: var(--plane);
+    color: var(--ink);
+    font: inherit; font-size: 15px;
+    cursor: pointer;
+  }
+  .editor-btn-primary {
+    background: var(--accent); border-color: var(--accent);
+    color: var(--on-accent); font-weight: 600;
+  }
+  .editor-btn-primary:hover { filter: brightness(1.06); }
+  .editor-btn-primary:active { filter: brightness(.94); }
+
+  /* 自动计算的热量展示行 */
+  .kcal-line {
+    margin: 2px 0 0;
+    font-size: 13px; color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .kcal-line strong { font-size: 16px; color: var(--ink); }
+  .kcal-line .kcal-note { margin-left: 6px; font-size: 12px; }
+  /* 份量模式：1 份等于多少（如「1 份 = 1 根（中等，约 118g）」） */
+  .portion-hint {
+    margin: 6px 0 0;
+    font-size: 12px; color: var(--ink-2);
+  }
+
+  /* 记录行里的克数 / 毫升数 */
+  .entry-amount {
+    flex: none;
+    font-size: 12px; color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 我的食物（自建食物管理） */
+  .my-foods { border-top: 1px solid var(--hairline); padding-top: 12px; }
+  .my-foods-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; min-height: 44px; padding: 0 4px;
+    border: 0; background: none;
+    color: var(--ink-2);
+    font: inherit; font-size: 13px; font-weight: 600;
+    cursor: pointer;
+  }
+  .my-foods-toggle .chev { transition: transform .15s ease; }
+  .my-foods-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .my-food-row { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 2px 0; }
+  .my-food-row + .my-food-row { border-top: 1px solid var(--hairline); }
+  .my-food-name {
+    flex: 1; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: 15px;
+  }
+  .my-food-kcal {
+    flex: none;
+    font-size: 13px; color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ============ 页面布局：窄屏上下堆叠；宽屏（≥900px）表单与今日记录并排 ============ */
+  .col-records { display: flex; flex-direction: column; gap: 28px; }
+  /* 今日记录面板：约占 2/3 屏高、内部滚动（用 max-height，记录少时不占空白） */
+  .records-panel {
+    max-height: min(66vh, 640px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  @media (min-width: 900px) {
+    main {
+      max-width: 1080px;
+      display: grid;
+      gap: 24px;
+      align-items: start;                        /* 两列都不互相拉伸 */
+      grid-template-columns: 3fr 4fr;            /* 表单 : 今日记录 = 3:4 */
+      grid-template-areas: "hero hero"           /* 抬头横跨整行，在最上方 */
+                           "form records";       /* 两栏顶部对齐 */
+    }
+    header.today { grid-area: hero; }
+    #entryForm { grid-area: form; }
+    .col-records { grid-area: records; gap: 24px; }
+    /* 注意：.col-records / .records-panel 不得加 position/z-index——
+       会造层叠上下文，挡住左列可能溢出过来的搜索下拉 */
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1 class="visually-hidden">食物记录</h1>
+
+  <!-- 第 3 条：今天总摄入 -->
+  <header class="today">
+    <p class="today-label">今天总摄入</p>
+    <p class="today-value"><span id="todayKcal">0</span><span class="unit">千卡</span></p>
+    <p class="today-sub" id="todaySub"></p>
+    <button type="button" class="whoami" id="whoami" hidden></button>
+    <a class="page-nav" href="history.html" id="historyLink">往日记录 →</a>
+  </header>
+
+  <!-- 第 1 条：录入表单 -->
+  <form id="entryForm" novalidate>
+    <div class="field">
+      <label for="dateInput">日期</label>
+      <input type="date" id="dateInput" name="date" required>
+      <p class="field-error" id="dateError" role="alert" hidden></p>
+      <button type="button" id="resetDateBtn" class="link-btn" hidden>改回今天</button>
+    </div>
+
+    <fieldset class="field" id="mealGroup">
+      <legend>餐次</legend>
+      <div class="meal-options">
+        <label class="meal-option"><input type="radio" name="meal" value="breakfast"><span>早餐</span></label>
+        <label class="meal-option"><input type="radio" name="meal" value="lunch"><span>午餐</span></label>
+        <label class="meal-option"><input type="radio" name="meal" value="dinner"><span>晚餐</span></label>
+        <label class="meal-option"><input type="radio" name="meal" value="snack"><span>加餐</span></label>
+      </div>
+      <p class="field-error" id="mealError" role="alert" hidden></p>
+    </fieldset>
+
+    <div class="field">
+      <label for="nameInput">食物名称</label>
+      <div class="combo">
+        <input type="text" id="nameInput" name="name"
+               autocomplete="off" maxlength="100" placeholder="例如 燕麦粥" enterkeyhint="done"
+               role="combobox" aria-expanded="false" aria-controls="nameListbox" aria-autocomplete="list">
+        <div id="nameListbox" class="combo-panel" role="listbox" aria-label="食物建议" hidden></div>
+        <div id="foodEditor" class="combo-editor" role="dialog" aria-label="添加新食物" hidden>
+          <div class="field">
+            <label for="foodEditorName">食物名称</label>
+            <input type="text" id="foodEditorName" maxlength="100" autocomplete="off">
+          </div>
+          <fieldset class="field" id="foodUnitGroup">
+            <legend>计量单位</legend>
+            <div class="meal-options unit-options">
+              <label class="meal-option"><input type="radio" name="foodUnit" value="g" checked><span>每 100 克</span></label>
+              <label class="meal-option"><input type="radio" name="foodUnit" value="ml"><span>每 100 毫升</span></label>
+            </div>
+          </fieldset>
+          <div class="field">
+            <label for="foodEditorKcal">热量（千卡）</label>
+            <input type="number" id="foodEditorKcal" inputmode="decimal"
+                   min="1" max="2000" step="1" placeholder="每 100 克/毫升的热量">
+          </div>
+          <p class="field-error" id="foodEditorError" role="alert" hidden></p>
+          <div class="combo-editor-actions">
+            <button type="button" id="foodEditorSave" class="editor-btn editor-btn-primary">保存并选中</button>
+            <button type="button" id="foodEditorCancel" class="editor-btn">取消</button>
+          </div>
+        </div>
+      </div>
+      <p class="field-error" id="nameError" role="alert" hidden></p>
+    </div>
+
+    <!-- 份量模式：选中「1 根（中等）」这类份量后才出现；份数与重量双向锁定 -->
+    <div class="field" id="portionField" hidden>
+      <label for="portionCountInput">份数</label>
+      <input type="number" id="portionCountInput" inputmode="decimal"
+             min="0.5" max="50" step="0.5" value="1" aria-describedby="portionHint">
+      <p class="portion-hint" id="portionHint"></p>
+      <p class="field-error" id="portionError" role="alert" hidden></p>
+    </div>
+
+    <div class="field">
+      <label for="amountInput" id="amountLabel">重量（克）</label>
+      <input type="number" id="amountInput" inputmode="decimal"
+             min="1" max="5000" step="1" placeholder="100" aria-describedby="kcalLine">
+      <p class="kcal-line" id="kcalLine" aria-live="polite">热量 <strong id="kcalValue">—</strong> 千卡
+        <span class="kcal-note" id="kcalNote">选择食物后自动计算</span></p>
+      <p class="field-error" id="amountError" role="alert" hidden></p>
+    </div>
+
+    <button type="submit" class="primary-btn">保存记录</button>
+  </form>
+
+  <!-- 第 2、4 条：今日记录（往日记录在 history.html） -->
+  <div class="col-records">
+    <section class="records-panel" aria-label="今日记录">
+      <div id="list" class="records-list"></div>
+    </section>
+
+    <!-- 自建食物管理（无自建食物时整区隐藏） -->
+    <section class="my-foods" id="myFoodsSection" aria-label="自建食物（全家共享）" hidden>
+      <button type="button" class="my-foods-toggle" id="myFoodsToggle"
+              aria-expanded="true" aria-controls="myFoodsList">
+        <span>自建食物 · 全家共享（<span id="myFoodsCount">0</span>）</span>
+        <span class="chev" aria-hidden="true">▾</span>
+      </button>
+      <div id="myFoodsList"></div>
+    </section>
+  </div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- 两页共用逻辑（时间/校验/列表渲染） -->
+<script src="shared.js"></script>
+<!-- supabase-js 客户端：本地自带（版本见 vendor/VERSION.txt），不依赖外部 CDN -->
+<script src="vendor/supabase.js"></script>
+<!-- Supabase 连接配置（URL + 公开密钥） -->
+<script src="config.js"></script>
+<!-- 数据层：匿名登录 / 读写 / 实时订阅（轮询兜底） -->
+<script src="cloud.js"></script>
+<!-- 本地食物热量库（由 tools/build_foods_db.py 生成；缺失时页面降级为仅自建食物） -->
+<script src="foods.js"></script>
+<!-- 常见份量估算（由 tools/build_portions.py 生成；缺失时降级为纯「每 100 克」录入） -->
+<script src="portions.js"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ===== 来自 shared.js 的别名 =====
+     只给不可变的常量与纯函数取别名（安全）；
+     FoodLog.store 是可变绑定（loadStore 会整体替换对象），页面里一律写 FoodLog.store.…，
+     绝不在这里缓存别名，否则会出现「页面渲染一份、落盘另一份」。 */
+  var FoodLog = window.FoodLog;
+  var NAME_MAX = FoodLog.NAME_MAX;
+  var AMOUNT_MIN = FoodLog.AMOUNT_MIN;
+  var AMOUNT_MAX = FoodLog.AMOUNT_MAX;
+  var DEFAULT_AMOUNT = FoodLog.DEFAULT_AMOUNT;
+  var KCAL100_MAX = FoodLog.KCAL100_MAX;
+  var UNIT_SUFFIX = FoodLog.UNIT_SUFFIX;
+  var UNIT_NOUN = FoodLog.UNIT_NOUN;
+  var MEAL_LABELS = FoodLog.MEAL_LABELS;
+  var unitOf = FoodLog.unitOf;
+  var unitText = FoodLog.unitText;
+  var unitNoun = FoodLog.unitNoun;
+  var todayLocalISO = FoodLog.todayLocalISO;
+  var nowLocalISO = FoodLog.nowLocalISO;
+  var shortDate = FoodLog.shortDate;
+  var dateLabel = FoodLog.dateLabel;
+  var relativeLabel = FoodLog.relativeLabel;
+  var fmtKcal = FoodLog.fmtKcal;
+  var showToast = FoodLog.showToast;
+  var createEntryRow = FoodLog.createEntryRow;
+  var renderDayGroups = FoodLog.renderDayGroups;
+
+  /* ================= 元素 ================= */
+  var form = document.getElementById('entryForm');
+  var dateInput = document.getElementById('dateInput');
+  var resetDateBtn = document.getElementById('resetDateBtn');
+  var mealGroup = document.getElementById('mealGroup');
+  var nameInput = document.getElementById('nameInput');
+  var nameListbox = document.getElementById('nameListbox');
+  var comboWrap = nameListbox.parentNode;
+  var amountInput = document.getElementById('amountInput');
+  var amountLabel = document.getElementById('amountLabel');
+  var kcalValueEl = document.getElementById('kcalValue');
+  var kcalNoteEl = document.getElementById('kcalNote');
+  var portionField = document.getElementById('portionField');
+  var portionCountInput = document.getElementById('portionCountInput');
+  var portionHint = document.getElementById('portionHint');
+  var foodEditor = document.getElementById('foodEditor');
+  var editorNameInput = document.getElementById('foodEditorName');
+  var editorUnitGroup = document.getElementById('foodUnitGroup');
+  var editorKcalInput = document.getElementById('foodEditorKcal');
+  var editorErrorEl = document.getElementById('foodEditorError');
+  var editorSaveBtn = document.getElementById('foodEditorSave');
+  var editorCancelBtn = document.getElementById('foodEditorCancel');
+  var myFoodsSection = document.getElementById('myFoodsSection');
+  var myFoodsToggle = document.getElementById('myFoodsToggle');
+  var myFoodsCount = document.getElementById('myFoodsCount');
+  var myFoodsList = document.getElementById('myFoodsList');
+  var todayKcalEl = document.getElementById('todayKcal');
+  var todaySubEl = document.getElementById('todaySub');
+  var listEl = document.getElementById('list');
+  var errorEls = {
+    date: document.getElementById('dateError'),
+    meal: document.getElementById('mealError'),
+    name: document.getElementById('nameError'),
+    portion: document.getElementById('portionError'),
+    amount: document.getElementById('amountError')
+  };
+
+  /* ================= 时间 ================= */
+  function defaultMeal() {
+    var h = new Date().getHours();
+    if (h < 10) return 'breakfast';
+    if (h < 15) return 'lunch';
+    if (h < 21) return 'dinner';
+    return 'snack';
+  }
+
+  /* ================= 校验 ================= */
+  function validateDateField(v) {
+    if (!v) return '请选择日期';
+    if (v > todayLocalISO()) return '日期不能晚于今天';
+    return null;
+  }
+  function validateMealField(v) {
+    return MEAL_LABELS.hasOwnProperty(v) ? null : '请选择餐次';
+  }
+  function validateNameField(v) {
+    var n = v.trim();
+    if (!n) return '请填写食物名称';
+    if (n.length > NAME_MAX) return '名称太长了，请控制在 100 字以内';
+    return null;
+  }
+  function validateKcal100Field(v, unit) {
+    var s = v.trim();
+    var suffix = unitText(unit);
+    if (s === '') return '请填写每 100 ' + suffix + '热量';
+    var n = Number(s);
+    if (!Number.isFinite(n)) return '热量请填数字，比如 116';
+    var r = Math.round(n);
+    if (r < 1) return '每 100 ' + suffix + '热量要至少 1 千卡';
+    if (r > KCAL100_MAX) return '这个数字有点大，请确认填写是否正确';
+    return null;
+  }
+
+  function validateAmountField(v, unit) {
+    var s = v.trim();
+    var noun = unitNoun(unit);
+    var suffix = unitText(unit);
+    if (s === '') return '请填写' + noun;
+    var n = Number(s);
+    if (!Number.isFinite(n)) return noun + '请填数字';
+    var a = Math.round(n);
+    if (a < AMOUNT_MIN) return noun + '要至少 ' + AMOUNT_MIN + ' ' + suffix;
+    if (a > AMOUNT_MAX) return '这个' + noun + '有点大，请确认填写是否正确';
+    return null;
+  }
+
+  function validateForm(raw) {
+    var errors = {};
+    var clean = {};
+    var msg;
+    if ((msg = validateDateField(raw.date))) errors.date = msg; else clean.date = raw.date;
+    if ((msg = validateMealField(raw.meal))) errors.meal = msg; else clean.meal = raw.meal;
+
+    // 名称必须解析到一个已知食物（内置库或自建），热量才有的算
+    var food = null;
+    if ((msg = validateNameField(raw.name))) {
+      errors.name = msg;
+    } else if (!(food = resolveFood(raw.name))) {
+      errors.name = '请从下拉中选择食物，或添加新食物';
+    } else {
+      clean.name = food.name;
+      clean.kcal100 = food.kcal100;
+      clean.unit = unitOf(food.unit);
+    }
+
+    var unit = clean.unit || 'g';
+    if ((msg = validateAmountField(raw.amount, unit))) {
+      errors.amount = msg;
+    } else {
+      clean.amount = Math.round(Number(raw.amount.trim()));
+    }
+
+    if (clean.kcal100 !== undefined && clean.amount !== undefined) {
+      var k = Math.round(clean.kcal100 * clean.amount / 100);
+      if (k < 1) errors.amount = '按这个' + unitNoun(unit) + '算不足 1 千卡，请增加' + unitNoun(unit) + '或更换食物';
+      else clean.calories = k;
+    }
+    return { ok: Object.keys(errors).length === 0, errors: errors, clean: clean };
+  }
+
+  /* ================= 字段错误提示 ================= */
+  var FIELD_CONTROLS = {
+    date: function () { return dateInput; },
+    name: function () { return nameInput; },
+    portion: function () { return portionCountInput; },
+    amount: function () { return amountInput; }
+  };
+
+  function showFieldError(field, msg) {
+    var el = errorEls[field];
+    if (!el) return;
+    el.hidden = false;            // 先显示再写入，便于读屏器播报
+    el.textContent = msg;
+    var getC = FIELD_CONTROLS[field];
+    if (getC) {
+      var c = getC();
+      c.setAttribute('aria-invalid', 'true');
+      // 与控件原有的 aria-describedby（如量→热量预览行）合并，而不是覆盖
+      var ids = (c.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean);
+      if (ids.indexOf(el.id) === -1) ids.push(el.id);
+      c.setAttribute('aria-describedby', ids.join(' '));
+    }
+  }
+
+  function clearFieldError(field) {
+    var el = errorEls[field];
+    if (!el) return;
+    el.textContent = '';
+    el.hidden = true;
+    var getC = FIELD_CONTROLS[field];
+    if (getC) {
+      var c = getC();
+      c.removeAttribute('aria-invalid');
+      var ids = (c.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean)
+        .filter(function (id) { return id !== el.id; });
+      if (ids.length) c.setAttribute('aria-describedby', ids.join(' '));
+      else c.removeAttribute('aria-describedby');
+    }
+  }
+
+  function focusField(field) {
+    if (field === 'meal') {
+      var radio = mealGroup.querySelector('input[name="meal"]:checked') ||
+                  mealGroup.querySelector('input[name="meal"]');
+      if (radio) radio.focus();
+      return;
+    }
+    var getC = FIELD_CONTROLS[field];
+    if (getC) getC().focus();
+  }
+
+  /* ================= 渲染 ================= */
+  function renderToday() {
+    var today = todayLocalISO();
+    var total = 0;
+    var count = 0;
+    for (var i = 0; i < FoodLog.store.records.length; i++) {
+      if (FoodLog.store.records[i].date === today) {
+        total += FoodLog.store.records[i].calories;
+        count++;
+      }
+    }
+    todayKcalEl.textContent = fmtKcal(total);
+    todaySubEl.textContent = dateLabel(today) + ' · ' + count + ' 条记录';
+  }
+
+  // 主页只显示今天的记录；往日记录在 history.html。
+  // 空态基于「过滤后的数组」判断（renderDayGroups 内部负责），不是原始 store。
+  function renderList(highlightId) {
+    var today = todayLocalISO();
+    var todays = FoodLog.store.records.filter(function (r) { return r.date === today; });
+    renderDayGroups(listEl, todays, {
+      emptyText: '今天还没有记录',
+      highlightId: highlightId,
+      onDelete: deleteEntry
+    });
+  }
+
+
+  /* ================= 我的食物（自建食物管理） ================= */
+  var myFoodsExpanded = true;      // 模块级：visibilitychange 重渲染时保留展开状态
+
+  function renderMyFoods() {
+    var foods = FoodLog.store.customFoods;
+    myFoodsSection.hidden = foods.length === 0;
+    myFoodsCount.textContent = String(foods.length);
+    myFoodsList.hidden = !myFoodsExpanded;
+    myFoodsToggle.setAttribute('aria-expanded', myFoodsExpanded ? 'true' : 'false');
+
+    myFoodsList.textContent = '';
+    foods.forEach(function (food) {
+      var row = document.createElement('div');
+      row.className = 'my-food-row';
+
+      var name = document.createElement('span');
+      name.className = 'my-food-name';
+      name.textContent = food.name;
+      name.title = food.name;
+
+      var kcal = document.createElement('span');
+      kcal.className = 'my-food-kcal';
+      kcal.textContent = fmtKcal(food.kcal100) + ' 千卡/100' + unitText(food.unit);
+
+      var author = null;
+      if (food.authorName) {
+        author = document.createElement('span');
+        author.className = 'entry-author';
+        author.textContent = food.authorName;
+        author.title = '由 ' + food.authorName + ' 添加';
+      }
+
+      row.appendChild(name);
+      if (author) row.appendChild(author);
+      row.appendChild(kcal);
+
+      if (FoodLog.isMine(food)) {          // 只能删自己的（数据库侧另有强制约束）
+        var del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'delete-btn';
+        del.setAttribute('aria-label', '删除自建食物 ' + food.name);
+        del.textContent = '✕';
+        del.addEventListener('click', function () { deleteCustomFood(food.id); });
+        row.appendChild(del);
+      }
+
+      myFoodsList.appendChild(row);
+    });
+  }
+
+  function deleteCustomFood(id) {
+    var removed = null;
+    for (var i = 0; i < FoodLog.store.customFoods.length; i++) {
+      if (FoodLog.store.customFoods[i].id === id) { removed = FoodLog.store.customFoods[i]; break; }
+    }
+    if (!removed) return;
+    if (!FoodLog.isMine(removed)) { showToast('只能删除自己添加的食物', true); return; }
+
+    var hadFocus = myFoodsSection.contains(document.activeElement);
+    var wasSelected = !!(selectedFood && normalizeKey(selectedFood.name) === normalizeKey(removed.name));
+
+    window.Cloud.deleteCustomFood(id).then(function (res) {
+      if (!res.ok) { showToast('删除失败：' + res.error, true); return; }
+      invalidateFoodIndex();
+      if (wasSelected) {                             // 删掉了正在选中的食物：清空并复位单位
+        nameInput.value = '';
+        clearFoodSelection();
+        clearFieldError('name');
+      }
+      renderMyFoods();
+      if (hadFocus) nameInput.focus();               // 焦点原本在列表里：清空后收到名称框
+      showToast('已删除：' + removed.name);
+    });
+  }
+
+  function render() {
+    invalidateFoodIndex();     // 自建食物可能被家人改过：每次重渲染前重建搜索索引
+    renderToday();
+    renderList(null);
+    renderMyFoods();
+  }
+
+  /* ================= 食物搜索（内置库 foods.js + 自建食物） ================= */
+  // 内置数据形如 window.FOOD_DB = [[名称, 每100克千卡], ...]；文件缺失时仅剩自建食物，
+  // 页面照常可用（浏览器会提示一次资源加载失败，属预期）。
+  var COMBO_MAX = 8;
+  var PORTION_FOOD_MAX = 1;    // 一次查询最多展开 1 种带份量的食物，避免挤掉内置条目
+  var PORTION_ROW_MAX = 4;     // 单种食物最多 3 个份量 + 1 个「100 克/毫升」行
+  var PORTION_MIN_SCORE = 70;  // 基础名包含以上才展开（子序列命中的噪音不铺开）
+  var foodIndex = null;        // 懒建索引；null = 无任何食物（含自建也没有）
+  var portionNames = {};       // 规范化名 → true：搜索时用来抑制「同名食物」的纯 100 克行
+  var comboItems = [];         // 当前下拉项 { type:'food'|'portion'|'add', ...；portion 另有 label/grams/kcal }
+  var comboOptionEls = [];     // 与 comboItems 一一对应的行元素（面板里可能还有非选项行）
+  var activeIndex = -1;        // -1 = 无键盘激活行
+  var composing = false;       // 中文输入法组词中
+  var editorOpen = false;      // 「添加新食物」编辑器是否展开
+  var selectedFood = null;     // 当前选中的食物 { name, kcal100, unit, src }
+  var selectedPortion = null;  // 份量模式 { label, grams }；null = 按克数直接录入
+
+  function normalizeKey(s) {
+    return String(s).toLowerCase()
+      .replace(/\s+/g, '')
+      .replace(/\(/g, '（').replace(/\)/g, '）');   // 半角括号并入全角，便于与库内名称对齐
+  }
+
+  // 基础名：在首个括号处截断。「薏米［薏仁米，苡米］」→「薏米」；
+  // 不截断的话，搜「薏米」会被更短的「薏米面」按长度规则挤到前面。
+  function baseNameOf(n) {
+    var cut = n.search(/[（(［[]/);
+    var b = cut > 0 ? n.slice(0, cut) : n;
+    return b || n;
+  }
+
+  function isSubsequence(q, target) {
+    var j = 0;
+    for (var i = 0; i < target.length && j < q.length; i++) {
+      if (target.charAt(i) === q.charAt(j)) j++;
+    }
+    return j === q.length;
+  }
+
+  function ensureFoodIndex() {
+    if (foodIndex) return foodIndex;
+    var idx = [];
+    var seen = {};
+    // 自建食物在前：规范化同名时覆盖内置，且并列时按原始顺序排在前面
+    for (var c = 0; c < FoodLog.store.customFoods.length; c++) {
+      var cf = FoodLog.store.customFoods[c];
+      var cn = normalizeKey(cf.name);
+      if (!cn || seen[cn]) continue;
+      seen[cn] = true;
+      idx.push({ display: cf.name, n: cn, b: baseNameOf(cn), k: cf.kcal100, unit: unitOf(cf.unit), src: 'custom', i: idx.length });
+    }
+    /* 常见份量（portions.js）：以「食物」身份进入同一个索引，选中后即可通过 resolveFood 校验。
+       优先级 自建 > 份量 > 内置——同名时份量的热量以入口形态为准（面条 熟 107，而非内置的生 301）。 */
+    var pf = window.FOOD_PORTIONS;
+    if (pf && pf.length) {
+      for (var p = 0; p < pf.length; p++) {
+        var f = pf[p];
+        if (!f || typeof f.name !== 'string' || !f.name) continue;
+        if (typeof f.kcal100 !== 'number' || !(f.kcal100 > 0)) continue;
+        var fn = normalizeKey(f.name);
+        if (!fn || seen[fn]) continue;
+        var ps = [];
+        if (Array.isArray(f.portions)) {
+          for (var q = 0; q < f.portions.length; q++) {
+            var pt = f.portions[q];
+            if (!pt || typeof pt.grams !== 'number' || !(pt.grams > 0)) continue;
+            ps.push({ desc: String(pt.desc || ''), grams: Math.round(pt.grams) });
+          }
+        }
+        if (!ps.length) continue;
+        seen[fn] = true;
+        portionNames[fn] = true;
+        idx.push({
+          display: f.name, n: fn, b: baseNameOf(fn), k: f.kcal100, unit: unitOf(f.unit),
+          src: 'portion', i: idx.length, portions: ps,
+          def: (typeof f.def === 'number' && f.def >= 0 && f.def < ps.length) ? f.def : -1
+        });
+      }
+    }
+    var db = window.FOOD_DB;
+    if (db && db.length) {
+      for (var i = 0; i < db.length; i++) {
+        var e = db[i];
+        if (!Array.isArray(e) || typeof e[0] !== 'string' || typeof e[1] !== 'number') continue;
+        var n = normalizeKey(e[0]);
+        if (!n || seen[n]) continue;               // 自建同名覆盖内置
+        seen[n] = true;
+        idx.push({ display: e[0], n: n, b: baseNameOf(n), k: e[1], unit: 'g', src: 'db', i: idx.length });
+      }
+    }
+    foodIndex = idx.length ? idx : null;
+    return foodIndex;
+  }
+
+  function invalidateFoodIndex() { foodIndex = null; portionNames = {}; }
+
+  // 按规范化全名精确查找（自建在前 → 同名优先自建）；返回与 selectedFood 同形状
+  function findFoodByName(text) {
+    var t = normalizeKey(text);
+    if (!t) return null;
+    var idx = ensureFoodIndex();
+    if (!idx) return null;
+    for (var i = 0; i < idx.length; i++) {
+      if (idx[i].n === t) {
+        return { name: idx[i].display, kcal100: idx[i].k, unit: idx[i].unit, src: idx[i].src };
+      }
+    }
+    return null;
+  }
+
+  // 名称 → 食物：优先用当前选中项，其次按全名精确查
+  function resolveFood(text) {
+    var t = normalizeKey(text);
+    if (!t) return null;
+    if (selectedFood && normalizeKey(selectedFood.name) === t) return selectedFood;
+    return findFoodByName(text);
+  }
+
+  function scoreFood(item, q) {
+    if (item.b === q) return 100;                    // 基础名全等
+    if (item.b.indexOf(q) === 0) return 80;          // 基础名前缀
+    if (item.b.indexOf(q) !== -1) return 70;         // 基础名包含
+    if (item.n.indexOf(q) !== -1) return 65;         // 全名包含（含括号里的限定词）
+    if (q.length >= 2 && isSubsequence(q, item.n)) return 45;   // 子序列：鸡胸肉→鸡胸脯肉
+    return 0;
+  }
+
+  function searchFoods(q) {
+    var idx = ensureFoodIndex();
+    if (!idx) return [];
+    var hits = [];
+    for (var i = 0; i < idx.length; i++) {
+      var s = scoreFood(idx[i], q);
+      if (s) hits.push({ item: idx[i], score: s });
+    }
+    hits.sort(function (a, b) {
+      return b.score - a.score ||                     // 得分降序
+             a.item.n.length - b.item.n.length ||     // 名称短者先
+             a.item.i - b.item.i;                     // 原始顺序稳定
+    });
+    var out = [];
+    var covered = {};                                // 已展开份量的食物（含基础名），其纯 100 克行不再重复出现
+    var expanded = 0;
+    for (var j = 0; j < hits.length && out.length < COMBO_MAX; j++) {
+      var it = hits[j].item;
+      if (it.portions && expanded < PORTION_FOOD_MAX && hits[j].score >= PORTION_MIN_SCORE) {
+        var group = portionRows(it, hits[j].score);
+        if (out.length + group.length <= COMBO_MAX) {   // 整组放不下就退化为普通行，不挤掉内置条目
+          covered[it.n] = true;
+          covered[it.b] = true;
+          expanded++;
+          out = out.concat(group);
+          continue;
+        }
+      }
+      if (!it.portions && (covered[it.n] || covered[it.b])) continue;
+      out.push({
+        type: 'food', name: it.display, kcal: it.k,
+        unit: it.unit, src: it.src, score: hits[j].score
+      });
+    }
+    return out;
+  }
+
+  // 一种食物展开成若干「份量行」+ 一行「100 克/毫升」；热量与保存时同式：round(kcal100 × 克数 / 100)
+  function portionRows(food, score) {
+    var unit = unitOf(food.unit);
+    var rows = [];
+    for (var i = 0; i < food.portions.length && rows.length < PORTION_ROW_MAX - 1; i++) {
+      var p = food.portions[i];
+      rows.push({
+        type: 'portion', name: food.display, kcal100: food.k, unit: unit,
+        grams: p.grams, label: portionLabel(p.desc, p.grams, unit),
+        kcal: Math.round(food.k * p.grams / 100),
+        src: food.src, score: score, isDefault: (i === food.def)
+      });
+    }
+    rows.push({
+      type: 'portion', name: food.display, kcal100: food.k, unit: unit,
+      grams: 100, label: '100 ' + unitText(unit), kcal: Math.round(food.k),
+      src: food.src, score: score, isDefault: food.def < 0, isUnitRow: true
+    });
+    return rows;
+  }
+
+  // 「1 根（中等）」+ 118 + g → 「1 根（中等，约 118g）」；无括号结尾则追加 → 「1 碗，约 232g」
+  function portionLabel(desc, grams, unit) {
+    var w = '约 ' + grams + unitOf(unit);
+    if (!desc) return w;
+    return /）$/.test(desc) ? desc.slice(0, -1) + '，' + w + '）' : desc + '，' + w;
+  }
+
+  // 空查询（聚焦输入框）时展示：最近记录里能解析到食物的名称，按记录新→旧、去重、≤8 条。
+  // 解析不到的自由文本（旧版留下）不展示——现在没有每 100 单位热量就记不了。
+  function recentFoods() {
+    var sorted = FoodLog.store.records.slice().sort(function (a, b) {
+      var ca = a.createdAt || '';
+      var cb = b.createdAt || '';
+      if (ca !== cb) return cb.localeCompare(ca);
+      return b.id - a.id;
+    });
+    var out = [];
+    var seen = {};
+    for (var i = 0; i < sorted.length && out.length < COMBO_MAX; i++) {
+      var nk = normalizeKey(sorted[i].name);
+      if (!nk || seen[nk]) continue;
+      var food = findFoodByName(sorted[i].name);
+      if (!food) continue;
+      seen[nk] = true;
+      out.push({ type: 'food', name: food.name, kcal: food.kcal100, unit: food.unit, src: food.src, score: 100 });
+    }
+    return out;
+  }
+
+  function updateCombo() {
+    var q = normalizeKey(nameInput.value);
+    var items = q ? searchFoods(q) : recentFoods();
+    // 有查询词时末行固定给出「添加新食物」入口（有匹配时也保留，便于覆盖同名内置食物）
+    if (q) items.push({ type: 'add', name: nameInput.value.trim().slice(0, NAME_MAX) });
+    if (!items.length) { closeCombo(); return; }
+    renderCombo(items);
+  }
+
+  // 份量行：食物名 · 1 根（中等，约 118g） ≈ 110 千卡（点一下连重量一起填入）
+  function appendPortionBody(option, item) {
+    var name = document.createElement('span');
+    name.className = 'combo-option-name';
+    name.textContent = item.name;
+
+    var sep = document.createElement('span');
+    sep.className = 'combo-option-sep';
+    sep.setAttribute('aria-hidden', 'true');         // 纯视觉分隔，读屏不念
+    sep.textContent = '·';
+
+    var portion = document.createElement('span');
+    portion.className = 'combo-option-portion';
+    portion.textContent = item.label;
+
+    var kcal = document.createElement('span');
+    kcal.className = 'combo-option-kcal';
+    kcal.textContent = '≈ ' + fmtKcal(item.kcal) + ' 千卡';
+
+    option.appendChild(name);
+    option.appendChild(sep);
+    option.appendChild(portion);
+    option.appendChild(kcal);
+  }
+
+  // 普通行（内置/自建食物与「添加新食物」）：食物名 + 每 100 克热量
+  function appendPlainBody(option, item) {
+    var label = document.createElement('span');
+    label.className = 'combo-option-name';
+    label.textContent = item.type === 'add'
+      ? '＋ 添加新食物：“' + item.name + '”'
+      : item.name;
+    option.appendChild(label);
+
+    if (item.type === 'food') {
+      if (item.src === 'custom') {
+        var tag = document.createElement('span');
+        tag.className = 'combo-option-tag';
+        tag.textContent = '自定义';
+        option.appendChild(tag);
+      }
+      var kcal = document.createElement('span');
+      kcal.className = 'combo-option-kcal';
+      kcal.textContent = fmtKcal(item.kcal) + ' 千卡/100' + unitText(item.unit);
+      option.appendChild(kcal);
+    }
+  }
+
+  function renderCombo(items) {
+    comboItems = items;
+    comboOptionEls = [];
+    activeIndex = -1;
+    nameListbox.textContent = '';
+
+    var hasFood = items.some(function (it) { return it.type === 'food' || it.type === 'portion'; });
+    if (!hasFood) {
+      var empty = document.createElement('div');
+      empty.className = 'combo-empty';
+      empty.textContent = '无匹配食物';
+      nameListbox.appendChild(empty);
+    }
+
+    items.forEach(function (item, i) {
+      var option = document.createElement('div');
+      option.className = 'combo-option'
+        + (item.type === 'add' ? ' combo-option-add' : '')
+        + (item.type === 'portion' ? ' is-portion' : '');
+      option.id = 'nameOpt' + i;
+      option.setAttribute('role', 'option');
+      option.setAttribute('aria-selected', 'false');
+      option.setAttribute('data-i', String(i));
+      option.setAttribute('data-type', item.type);
+      if (item.src) option.setAttribute('data-src', item.src);
+
+      if (item.type === 'portion') {
+        appendPortionBody(option, item);
+      } else {
+        appendPlainBody(option, item);
+      }
+      comboOptionEls.push(option);
+      nameListbox.appendChild(option);
+    });
+    openCombo();
+  }
+
+  function openCombo() {
+    nameListbox.hidden = false;
+    nameInput.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeCombo() {
+    if (nameListbox.hidden) return;
+    nameListbox.hidden = true;
+    nameInput.setAttribute('aria-expanded', 'false');
+    nameInput.removeAttribute('aria-activedescendant');
+    nameListbox.textContent = '';
+    comboItems = [];
+    comboOptionEls = [];
+    activeIndex = -1;
+  }
+
+  function setActive(i) {
+    if (i < -1) i = -1;
+    if (i > comboItems.length - 1) i = comboItems.length - 1;
+    activeIndex = i;
+    for (var j = 0; j < comboOptionEls.length; j++) {
+      var on = (j === i);
+      comboOptionEls[j].classList.toggle('is-active', on);
+      comboOptionEls[j].setAttribute('aria-selected', on ? 'true' : 'false');
+    }
+    if (i < 0) {
+      nameInput.removeAttribute('aria-activedescendant');
+      return;
+    }
+    nameInput.setAttribute('aria-activedescendant', 'nameOpt' + i);
+    var el = comboOptionEls[i];          // offsetTop 相对 nameListbox（最近定位祖先）
+    if (el.offsetTop < nameListbox.scrollTop) {
+      nameListbox.scrollTop = el.offsetTop;
+    } else if (el.offsetTop + el.offsetHeight > nameListbox.scrollTop + nameListbox.clientHeight) {
+      nameListbox.scrollTop = el.offsetTop + el.offsetHeight - nameListbox.clientHeight;
+    }
+  }
+
+  // 单位是「选中食物」的属性：标签与报错措辞从这里统一刷新；切换单位时旧的量报错不能残留
+  function applyUnitUI(unit) {
+    var u = unitOf(unit);
+    amountLabel.textContent = UNIT_NOUN[u] + '（' + UNIT_SUFFIX[u] + '）';
+    amountInput.placeholder = String(DEFAULT_AMOUNT);
+    clearFieldError('amount');
+  }
+
+  function parseAmount() {
+    var n = Number(amountInput.value);
+    return (Number.isFinite(n) && Math.round(n) >= AMOUNT_MIN) ? Math.round(n) : 0;
+  }
+
+  function updateKcalPreview() {
+    if (!selectedFood) {
+      kcalValueEl.textContent = '—';
+      kcalNoteEl.textContent = '选择食物后自动计算';
+      return;
+    }
+    var unit = unitOf(selectedFood.unit);
+    var a = parseAmount();
+    if (!a) {                                        // 量还没填/非法：只提示每 100 单位的热量
+      kcalValueEl.textContent = '—';
+      kcalNoteEl.textContent = fmtKcal(selectedFood.kcal100) + ' 千卡/100' + unitText(unit);
+      return;
+    }
+    kcalValueEl.textContent = fmtKcal(Math.round(selectedFood.kcal100 * a / 100));
+    kcalNoteEl.textContent = fmtKcal(selectedFood.kcal100) + ' 千卡/100' + unitText(unit) +
+      ' × ' + a + ' ' + unitText(unit);
+  }
+
+  function clearFoodSelection() {
+    selectedFood = null;
+    clearPortion();
+    applyUnitUI('g');
+    updateKcalPreview();
+  }
+
+  /* ===== 份量模式：选「1 根（中等）」这类份量后，份数 ⇄ 重量双向锁定 =====
+     两边永远描述同一件事：重量 = 每份克数 × 份数。改哪边另一边就跟着变。
+     克数仍是唯一落库的量（记录结构不变），份数只是另一个录入/查看角度。
+     退出方式：改食物名、选普通食物行、或选「100 克/毫升」行。 */
+  function setPortion(label, grams) {
+    selectedPortion = { label: label, grams: grams };
+    portionCountInput.value = '1';
+    portionHint.textContent = '1 份 = ' + label;
+    clearFieldError('portion');
+    portionField.hidden = false;
+  }
+
+  function clearPortion() {
+    if (!selectedPortion && portionField.hidden) return;
+    selectedPortion = null;
+    portionField.hidden = true;
+    portionCountInput.value = '1';
+    portionHint.textContent = '';
+    clearFieldError('portion');
+  }
+
+  // 份数 → 重量；返回 false 表示这次输入不成立（没填完 / 非法 / 超范围）
+  function applyPortionCount() {
+    if (!selectedPortion) return false;
+    var raw = portionCountInput.value.trim();
+    clearFieldError('portion');
+    if (raw === '') return false;                    // 还没填完：先不动重量
+    var n = Number(raw);
+    if (!Number.isFinite(n) || n <= 0) {
+      showFieldError('portion', '份数请填数字，比如 1 或 1.5');
+      return false;
+    }
+    var amount = Math.round(selectedPortion.grams * n);
+    if (amount < AMOUNT_MIN) {
+      showFieldError('portion', '份数太小，按这个份量不足 ' + AMOUNT_MIN + ' 克');
+      return false;
+    }
+    if (amount > AMOUNT_MAX) {
+      showFieldError('portion', '份数太大，合计超过 ' + AMOUNT_MAX + ' 克了');
+      return false;
+    }
+    amountInput.value = String(amount);              // 直接赋值不触发 input，不会与「改重量→反算份数」互相触发
+    clearFieldError('amount');
+    updateKcalPreview();
+    return true;
+  }
+
+  // 重量 → 份数（双向锁定的另一半）：手改重量时反算份数；
+  // 份数栏被清空/填非法值而失焦时也回到这里。重量还没填完时先不动份数。
+  function syncPortionCountFromAmount() {
+    if (!selectedPortion) return;
+    var a = parseAmount();
+    if (!a) return;
+    var n = Math.round(a / selectedPortion.grams * 100) / 100;
+    portionCountInput.value = String(n);
+    clearFieldError('portion');
+  }
+
+  // amount 省略 = 只换食物、不动已填的量；份量行会带上克数，连重量一起填好
+  function selectFood(food, amount) {
+    selectedFood = { name: food.name, kcal100: food.kcal100, unit: unitOf(food.unit), src: food.src || 'db' };
+    nameInput.value = food.name;
+    applyUnitUI(selectedFood.unit);                  // 内部已清掉旧的量报错
+    if (amount !== undefined) amountInput.value = String(amount);
+    updateKcalPreview();
+    clearFieldError('name');
+    closeCombo();
+    nameInput.focus();
+  }
+
+  function selectItem(item) {
+    if (item.type === 'add') { openEditor(nameInput.value); return; }
+    if (item.type === 'portion') {
+      // 「100 克/毫升」行不是份量（1 份就等于重量框本身），不进份量模式
+      if (item.isUnitRow) clearPortion();
+      else setPortion(item.label, item.grams);
+      selectFood({ name: item.name, kcal100: item.kcal100, unit: item.unit, src: item.src }, item.grams);
+      if (!item.isUnitRow) focusPortionCount();
+      return;
+    }
+    clearPortion();
+    selectFood({ name: item.name, kcal100: item.kcal, unit: item.unit, src: item.src });
+  }
+
+  // 选中份量后把光标送到「份数」：可直接改数字（内容已全选，输入即替换）
+  function focusPortionCount() {
+    try {
+      portionCountInput.focus();
+      portionCountInput.select();
+    } catch (err) { /* 忽略：部分环境不支持 select */ }
+  }
+
+  /* ================= 「添加新食物」编辑器 ================= */
+  function setEditorUnit(unit) {
+    var u = unitOf(unit);
+    var radios = editorUnitGroup.querySelectorAll('input[name="foodUnit"]');
+    for (var i = 0; i < radios.length; i++) radios[i].checked = (radios[i].value === u);
+  }
+
+  function editorUnit() {
+    var checked = editorUnitGroup.querySelector('input[name="foodUnit"]:checked');
+    return checked ? checked.value : 'g';
+  }
+
+  function showEditorError(msg) {
+    editorErrorEl.hidden = false;                    // 先显示再写文字，便于读屏器播报
+    editorErrorEl.textContent = msg;
+  }
+
+  function clearEditorError() {
+    editorErrorEl.textContent = '';
+    editorErrorEl.hidden = true;
+  }
+
+  function openEditor(query) {
+    editorOpen = true;                               // 先置位：随后的焦点变化不应被当成外部失焦
+    nameListbox.hidden = true;
+    nameInput.setAttribute('aria-expanded', 'false');
+    nameInput.removeAttribute('aria-activedescendant');
+    nameInput.setAttribute('aria-controls', 'foodEditor');
+    nameInput.setAttribute('aria-haspopup', 'dialog');
+
+    var name = String(query).trim().slice(0, NAME_MAX);
+    var existing = findFoodByName(name);             // 同名自建可预填，便于改热量/单位
+    var isCustom = !!(existing && existing.src === 'custom');
+    editorNameInput.value = name;
+    editorKcalInput.value = isCustom ? String(existing.kcal100) : '';
+    setEditorUnit(isCustom ? existing.unit : 'g');
+    clearEditorError();
+    foodEditor.hidden = false;
+    editorNameInput.focus();
+    var len = editorNameInput.value.length;
+    try { editorNameInput.setSelectionRange(len, len); } catch (err) { /* 忽略 */ }
+  }
+
+  function closeEditor(refocus) {
+    if (!editorOpen) return;
+    editorOpen = false;                              // 先复位
+    foodEditor.hidden = true;
+    editorNameInput.value = '';
+    editorKcalInput.value = '';
+    clearEditorError();
+    nameInput.setAttribute('aria-controls', 'nameListbox');
+    nameInput.removeAttribute('aria-haspopup');
+    if (refocus) nameInput.focus();                  // focus 处理器会按当前文字重开面板
+  }
+
+  function onEditorKeydown(ev) {
+    if (ev.key === 'Enter') {
+      ev.preventDefault();                           // 关键：挡住外层表单的隐式提交
+      onEditorSave();
+    } else if (ev.key === 'Escape') {
+      ev.preventDefault();
+      closeEditor(true);
+    }
+  }
+
+  function onEditorMousedown(ev) {
+    if (ev.target.tagName === 'BUTTON') ev.preventDefault();   // 按钮不抢焦点；输入框保持默认行为
+  }
+
+  function onEditorFocusout(ev) {
+    if (!editorOpen) return;
+    // relatedTarget 为 null（点空白/切窗口）时保持打开，交给 document 级 mousedown 决定
+    if (ev.relatedTarget && !foodEditor.contains(ev.relatedTarget)) closeEditor(false);
+  }
+
+  function onEditorSave() {
+    var unit = editorUnit();
+    var msg = validateNameField(editorNameInput.value) || validateKcal100Field(editorKcalInput.value, unit);
+    if (msg) { showEditorError(msg); return; }
+
+    var name = editorNameInput.value.trim().slice(0, NAME_MAX);
+    var kcal100 = Math.max(1, Math.round(Number(editorKcalInput.value.trim())));
+    var key = normalizeKey(name);
+
+    // 食物库全家共享：同名以服务器生成的 nameKey 为准（一个名字只能有一条）
+    var dup = null;
+    for (var i = 0; i < FoodLog.store.customFoods.length; i++) {
+      var cf = FoodLog.store.customFoods[i];
+      if ((cf.nameKey || normalizeKey(cf.name)) === key) { dup = cf; break; }
+    }
+
+    if (dup && !FoodLog.isMine(dup)) {
+      // 别人已经建过同名食物：不覆盖、不报错，直接选中现成的那条
+      closeEditor(false);
+      selectFood({ name: dup.name, kcal100: dup.kcal100, unit: dup.unit, src: 'custom' });
+      showToast('「' + dup.name + '」已存在（' + (dup.authorName || '家人') + ' 添加），已直接选中');
+      return;
+    }
+
+    editorSaveBtn.disabled = true;
+    window.Cloud.saveCustomFood({ id: dup ? dup.id : null, name: name, kcal100: kcal100, unit: unit })
+      .then(function (res) {
+        editorSaveBtn.disabled = false;
+        if (!res.ok) {
+          if (res.code === '23505') showEditorError('这个名字刚被家人用掉了，换个名字试试');
+          else showEditorError('保存失败：' + res.error);
+          return;
+        }
+        invalidateFoodIndex();
+        closeEditor(false);
+        selectFood({ name: res.food.name, kcal100: res.food.kcal100, unit: res.food.unit, src: 'custom' });
+        renderMyFoods();
+        showToast((res.updated ? '已更新：' : '已添加：') + res.food.name + ' ' +
+          fmtKcal(res.food.kcal100) + ' 千卡/100' + unitText(res.food.unit));
+      });
+  }
+
+  function onEditorCancel() {
+    closeEditor(true);
+  }
+
+  function onNameInput() {
+    if (composing) return;                           // 组词期间不搜索，避免闪动
+    clearFieldError('name');
+    if (selectedFood && nameInput.value !== selectedFood.name) clearFoodSelection();
+    if (editorOpen) return;                          // 编辑器打开时不刷新下拉
+    updateCombo();
+  }
+
+  // 回车快捷选：首行恰好命中基础名（得分 100）才算数；是份量行时优先「默认份量」
+  function exactFoodPick() {
+    var top = comboItems[0];
+    if (!top || top.score !== 100) return null;
+    if (top.type !== 'food' && top.type !== 'portion') return null;
+    if (top.type === 'portion') {
+      for (var i = 0; i < comboItems.length; i++) {
+        var it = comboItems[i];
+        if (it.type === 'portion' && it.name === top.name && it.isDefault) return it;
+      }
+    }
+    return top;
+  }
+
+  function onNameKeydown(ev) {
+    if (ev.key === 'ArrowDown') {
+      if (!editorOpen && nameListbox.hidden) updateCombo();
+      if (!nameListbox.hidden) { setActive(activeIndex + 1); ev.preventDefault(); }
+      return;
+    }
+    if (ev.key === 'ArrowUp') {
+      if (!nameListbox.hidden) { setActive(activeIndex - 1); ev.preventDefault(); }
+      return;
+    }
+    if (ev.key === 'Enter') {
+      if (!nameListbox.hidden && activeIndex >= 0 && comboItems[activeIndex]) {
+        selectItem(comboItems[activeIndex]);         // 仅键盘选中某行时拦截
+        ev.preventDefault();                         // 阻止表单提交
+        return;
+      }
+      // 分数闸门：输入恰好等于某个食物的基础名（得分 100）时回车直接选中；
+      // 带份量的食物优先选中「默认份量」那行；其余情况维持原手感——Enter 提交表单
+      var top = exactFoodPick();
+      if (!nameListbox.hidden && top) {
+        selectItem(top);
+        ev.preventDefault();
+      }
+      return;
+    }
+    if (ev.key === 'Escape' && !nameListbox.hidden) {
+      closeCombo();
+      ev.preventDefault();
+    }
+  }
+
+  function onComboClick(ev) {
+    var el = ev.target;
+    while (el && el !== nameListbox && !(el.getAttribute && el.getAttribute('data-i') !== null)) {
+      el = el.parentNode;
+    }
+    if (!el || el === nameListbox) return;           // 点的是面板空白/提示行
+    var i = Number(el.getAttribute('data-i'));
+    if (comboItems[i]) selectItem(comboItems[i]);
+  }
+
+  function onDocMouseDown(ev) {
+    // Safari 点非聚焦元素不触发 blur，需主动收起；编辑器与下拉都要收
+    if (comboWrap.contains(ev.target)) return;
+    if (editorOpen) closeEditor(false);
+    if (!nameListbox.hidden) closeCombo();
+  }
+
+  /* ================= 删除 ================= */
+  // 落盘与提示都在 shared.js；这里只负责删除后如何重渲染（成功、失败都一样重渲染，
+  // 与迁移前的 render() 调用时机保持一致）
+  function deleteEntry(id) {
+    FoodLog.deleteRecord(id, render);
+  }
+
+  /* ================= 提交 ================= */
+  var isSubmitting = false;
+
+  function onSubmit(ev) {
+    ev.preventDefault();
+    if (isSubmitting) return;
+
+    var checkedMeal = mealGroup.querySelector('input[name="meal"]:checked');
+    var raw = {
+      date: dateInput.value,
+      meal: checkedMeal ? checkedMeal.value : '',
+      name: nameInput.value,
+      amount: amountInput.value
+    };
+
+    var result = validateForm(raw);
+    ['date', 'meal', 'name', 'portion', 'amount'].forEach(clearFieldError);
+
+    if (!result.ok) {
+      Object.keys(result.errors).forEach(function (f) { showFieldError(f, result.errors[f]); });
+      var order = ['date', 'meal', 'name', 'portion', 'amount'];
+      for (var i = 0; i < order.length; i++) {
+        if (result.errors.hasOwnProperty(order[i])) { focusField(order[i]); break; }
+      }
+      return;
+    }
+
+    isSubmitting = true;
+    var submitBtn = form.querySelector('.primary-btn');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '保存中…'; }
+
+    window.Cloud.addEntry({
+      date: result.clean.date,
+      meal: result.clean.meal,
+      name: result.clean.name,
+      calories: result.clean.calories,
+      amount: result.clean.amount,
+      unit: result.clean.unit,
+      kcal100: result.clean.kcal100
+    }).then(function (res) {
+      isSubmitting = false;
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '保存记录'; }
+
+      if (!res.ok) {
+        showToast('保存失败：' + res.error, true);
+        return;
+      }
+
+      var entry = res.row;
+      renderList(entry.id);
+      renderToday();
+
+      var rowEl = listEl.querySelector('.entry-row[data-id="' + entry.id + '"]');
+      if (rowEl) {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          rowEl.scrollIntoView({ block: 'nearest' });
+        } else {
+          rowEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+      }
+
+      // 补记往日：主页看不到这条，提示去往日页查看（只有一个 toast 元素，不能连发两条）
+      if (entry.date !== todayLocalISO()) {
+        showToast('已记录到 ' + shortDate(entry.date) + '（可在往日记录中查看）');
+      } else {
+        showToast('已记录：' + MEAL_LABELS[entry.meal] + ' · ' + entry.name + ' ' + fmtKcal(entry.calories) + ' 千卡');
+      }
+      resetFormAfterSubmit();
+    });
+  }
+
+  function resetFormAfterSubmit() {
+    nameInput.value = '';
+    amountInput.value = String(DEFAULT_AMOUNT);
+    clearFoodSelection();            // 单位标签一并复位为「重量（克）」
+    clearFieldError('name');
+    clearFieldError('amount');
+    nameInput.focus();               // 日期、餐次保留，方便连续录入
+    closeCombo();                    // focus 会带出最近食物下拉，提交后主动收起
+  }
+
+  /* ================= 初始化 ================= */
+  function updateResetDateBtn() {
+    resetDateBtn.hidden = (dateInput.value === todayLocalISO());
+  }
+
+  function init() {
+    dateInput.value = todayLocalISO();
+    dateInput.max = todayLocalISO();          // 允许补记往日，但不允许未来
+    updateResetDateBtn();
+    amountInput.value = String(DEFAULT_AMOUNT);
+
+    var radio = mealGroup.querySelector('input[name="meal"][value="' + defaultMeal() + '"]');
+    if (radio) radio.checked = true;
+
+    render();
+
+    form.addEventListener('submit', onSubmit);
+
+    dateInput.addEventListener('input', function () {
+      clearFieldError('date');
+      updateResetDateBtn();
+    });
+    resetDateBtn.addEventListener('click', function () {
+      dateInput.value = todayLocalISO();
+      updateResetDateBtn();
+      clearFieldError('date');
+    });
+
+    mealGroup.addEventListener('change', function () { clearFieldError('meal'); });
+
+    nameInput.addEventListener('input', onNameInput);
+    nameInput.addEventListener('blur', function () {
+      closeCombo();                  // 先收起，再做校验
+      if (nameInput.value.trim() === '') { clearFieldError('name'); return; }   // 空值留到提交时提示
+      var msg = validateNameField(nameInput.value);
+      if (msg) showFieldError('name', msg); else clearFieldError('name');
+    });
+    nameInput.addEventListener('focus', function () { if (!editorOpen) updateCombo(); });
+    nameInput.addEventListener('mousedown', function () {
+      // Safari 点回输入框不触发 focus，这里补一次重开
+      if (!editorOpen && nameListbox.hidden) updateCombo();
+    });
+    nameInput.addEventListener('keydown', onNameKeydown);
+    nameInput.addEventListener('compositionstart', function () { composing = true; });
+    nameInput.addEventListener('compositionend', function () { composing = false; onNameInput(); });
+    // 面板整体阻止 mousedown 默认行为：选中时输入框不失焦，拖滚动条也不收起
+    nameListbox.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+    nameListbox.addEventListener('click', onComboClick);
+    document.addEventListener('mousedown', onDocMouseDown);
+
+    portionCountInput.addEventListener('input', applyPortionCount);
+    portionCountInput.addEventListener('blur', function () {
+      // 输完收尾：填不成（空/非法/超范围）就回到与重量一致的份数，两个框不会各说各话
+      if (!applyPortionCount()) syncPortionCountFromAmount();
+    });
+
+    amountInput.addEventListener('input', function () {
+      clearFieldError('amount');
+      syncPortionCountFromAmount();    // 双向锁定：手改重量 → 反算份数
+      updateKcalPreview();
+    });
+    amountInput.addEventListener('blur', function () {
+      if (amountInput.value.trim() === '') { clearFieldError('amount'); return; }
+      var msg = validateAmountField(amountInput.value, selectedFood ? selectedFood.unit : 'g');
+      if (msg) showFieldError('amount', msg); else clearFieldError('amount');
+    });
+
+    // 「添加新食物」编辑器：内部输入框的 Enter/Esc 与按钮点击都不走主表单
+    foodEditor.addEventListener('keydown', onEditorKeydown);
+    foodEditor.addEventListener('mousedown', onEditorMousedown);
+    foodEditor.addEventListener('focusout', onEditorFocusout);
+    editorUnitGroup.addEventListener('change', clearEditorError);
+    editorSaveBtn.addEventListener('click', onEditorSave);
+    editorCancelBtn.addEventListener('click', onEditorCancel);
+
+    myFoodsToggle.addEventListener('click', function () {
+      myFoodsExpanded = !myFoodsExpanded;
+      renderMyFoods();
+    });
+
+    // 页面长时间开着跨天时，重新可见即刷新“今天”与日期上限（数据刷新由 cloud.js 负责）
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) {
+        dateInput.max = todayLocalISO();
+        updateResetDateBtn();
+        render();
+      }
+    });
+
+    // 数据在服务器：匿名登录 → 首屏拉取 → 实时订阅（连不上自动转轮询）
+    window.Cloud.connect({
+      onReady: render,
+      onUpdate: render
+    });
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

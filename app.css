@@ -1,0 +1,202 @@
+/* app.css — 主页与往日页共用的样式（设计令牌 / 基础 / 记录列表 / toast）。
+   页面专属样式（表单、搜索下拉、我的食物、两栏布局）留在各自页面的 <style> 里。 */
+
+/* ============ 设计令牌（dataviz 参考色板，浅/深两套） ============ */
+:root {
+  color-scheme: light dark;
+  --plane: #f9f9f7;            /* 页面底色 */
+  --surface: #fcfcfb;          /* 卡片/输入面 */
+  --ink: #0b0b0b;              /* 主文字 */
+  --ink-2: #52514e;            /* 次要文字 */
+  --ink-3: #898781;            /* 弱化（仅图标/占位符） */
+  --hairline: #e1e0d9;         /* 发丝分隔线 */
+  --control-border: #8f8d86;   /* 交互控件描边（≥3:1） */
+  --accent: #256abf;           /* 唯一强调蓝 */
+  --on-accent: #ffffff;
+  --danger: #d03b3b;
+  --radius: 12px;
+  --shadow: 0 1px 2px rgba(11, 11, 11, .06), 0 10px 30px rgba(11, 11, 11, .08);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --plane: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --ink-3: #898781;
+    --hairline: #2c2c2a;
+    --control-border: #6b6a64;
+    --accent: #3987e5;
+    --on-accent: #0b0b0b;
+    --danger: #d03b3b;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 10px 30px rgba(0, 0, 0, .4);
+  }
+}
+
+/* ============ 基础 ============ */
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  background: var(--plane);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "PingFang SC", "Segoe UI", "Noto Sans CJK SC", sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+main {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: calc(20px + env(safe-area-inset-top)) 16px calc(48px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ============ 记录列表 ============ */
+.records-list { display: flex; flex-direction: column; gap: 22px; }
+.empty { margin: 0; padding: 28px 0; text-align: center; font-size: 14px; color: var(--ink-2); }
+
+.day-header {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+  padding: 0 4px 10px;
+}
+.day-label { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.day-future {
+  margin-left: 6px; padding: 1px 5px;
+  border: 1px solid var(--hairline); border-radius: 4px;
+  font-size: 11px; font-weight: 500; color: var(--ink-2);
+}
+.day-total { font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.entry-row { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 2px 0; }
+.entry-row + .entry-row { border-top: 1px solid var(--hairline); }
+.meal-tag {
+  flex: none; white-space: nowrap;
+  padding: 2px 7px;
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  font-size: 12px; color: var(--ink-2);
+}
+.entry-name {
+  flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 15px;
+}
+.entry-amount {
+  flex: none;
+  font-size: 12px; color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.entry-cal { flex: none; font-size: 14px; font-variant-numeric: tabular-nums; }
+.cal-unit { margin-left: 2px; font-size: 12px; color: var(--ink-2); }
+.delete-btn {
+  flex: none;
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  border: 0; border-radius: 10px;
+  background: none;
+  color: var(--ink-3);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  transition: color .15s ease, background-color .15s ease;
+}
+.delete-btn:hover, .delete-btn:active {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+}
+.entry-row.flash { border-radius: 8px; animation: row-flash 1.6s ease-out; }
+@keyframes row-flash {
+  from { background-color: color-mix(in srgb, var(--accent) 16%, transparent); }
+  to { background-color: transparent; }
+}
+
+/* ============ 作者昵称 / 「我是谁」按钮 ============ */
+.entry-author {
+  flex: none; max-width: 5.5em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 11px; color: var(--ink-3);
+}
+.whoami {
+  margin-top: 8px;
+  padding: 4px 10px; min-height: 32px;
+  border: 1px solid var(--hairline); border-radius: 999px;
+  background: none; color: var(--ink-2);
+  font: inherit; font-size: 12px;
+  cursor: pointer;
+  transition: color .15s ease, border-color .15s ease;
+}
+.whoami:hover, .whoami:active { color: var(--accent); border-color: var(--accent); }
+
+/* ============ 昵称弹窗（首次进站必须起名；之后点「✎ 昵称」可改） ============ */
+.nick-mask {
+  position: fixed; inset: 0; z-index: 20;
+  display: grid; place-items: center;
+  padding: 24px;
+  background: color-mix(in srgb, var(--ink) 45%, transparent);
+}
+.nick-card {
+  width: min(100%, 340px);
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.nick-title { margin: 0 0 6px; font-size: 18px; }
+.nick-hint { margin: 0 0 14px; font-size: 13px; color: var(--ink-2); }
+.nick-input {
+  width: 100%; min-height: 44px; padding: 8px 12px;
+  border: 1px solid var(--control-border); border-radius: 8px;
+  background: var(--plane); color: var(--ink);
+  font: inherit; font-size: 16px;      /* 16px：iOS 上聚焦不放大 */
+}
+.nick-error { margin: 8px 0 0; font-size: 13px; color: var(--danger); }
+.nick-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+.nick-btn {
+  min-height: 40px; padding: 0 16px;
+  border: 1px solid var(--control-border); border-radius: 8px;
+  background: none; color: var(--ink);
+  font: inherit; font-size: 14px;
+  cursor: pointer;
+}
+.nick-btn-primary { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+
+/* ============ toast ============ */
+#toast {
+  position: fixed;                 /* 注意：pointer-events:none，不得承载可点交互 */
+  top: calc(12px + env(safe-area-inset-top));
+  left: 50%;
+  transform: translate(-50%, -6px);
+  max-width: min(92vw, 440px);
+  padding: 10px 16px;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+  z-index: 10;
+}
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+#toast.toast-error { color: var(--danger); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f9f9f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)">
+<title>往日记录</title>
+<link rel="stylesheet" href="app.css">
+<style>
+  /* ============ 页头 ============ */
+  .history-head { position: relative; padding: 8px 96px 0 4px; }
+  .history-title { margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.01em; }
+  .history-hint { margin: 6px 0 0; font-size: 13px; color: var(--ink-2); }
+  .page-nav {
+    position: absolute; top: 8px; right: 4px;
+    display: inline-flex; align-items: center;
+    min-height: 44px;
+    font-size: 13px; color: var(--accent); text-decoration: none;
+  }
+  @media (min-width: 900px) {
+    main { max-width: 720px; }        /* 桌面端与主页两栏观感匹配，别太窄 */
+  }
+</style>
+</head>
+<body>
+<main>
+  <header class="history-head">
+    <h1 class="history-title">往日记录</h1>
+    <p class="history-hint">全家共享 · 只保留最近 7 天，过期自动清理</p>
+    <button type="button" class="whoami" id="whoami" hidden></button>
+    <a class="page-nav" href="index.html">← 返回今天</a>
+  </header>
+
+  <!-- 往日记录：今天之外的记录（含"未到日期"的脏数据，标出来便于删除） -->
+  <section aria-label="往日记录">
+    <div id="historyList" class="records-list"></div>
+  </section>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="shared.js"></script>
+<!-- supabase-js 客户端：本地自带（版本见 vendor/VERSION.txt），不依赖外部 CDN -->
+<script src="vendor/supabase.js"></script>
+<script src="config.js"></script>
+<script src="cloud.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var FoodLog = window.FoodLog;
+  var listEl = document.getElementById('historyList');
+
+  // 今天之外的记录（含家人补记的往日数据；「未到日期」的脏数据标出来便于删除）
+  function renderHistory() {
+    var today = FoodLog.todayLocalISO();
+    var past = FoodLog.store.records.filter(function (r) { return r.date !== today; });
+    FoodLog.renderDayGroups(listEl, past, {
+      emptyText: '最近 7 天还没有更早的记录',
+      highlightId: null,
+      markFuture: true,
+      onDelete: function (id) { FoodLog.deleteRecord(id, renderHistory); }
+    });
+  }
+
+  // 匿名登录 → 首屏拉取 → 实时订阅（连不上自动转轮询）。
+  // 7 天过期清理已改由服务器定时任务执行（见 supabase/schema.sql），前端不再删数据。
+  window.Cloud.connect({
+    onReady: renderHistory,
+    onUpdate: renderHistory
+  });
+})();
+</script>
+</body>
+</html>
