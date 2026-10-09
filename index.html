@@ -216,12 +216,8 @@
     font-size: 12px; color: var(--ink-2);
   }
 
-  /* 记录行里的克数 / 毫升数 */
-  .entry-amount {
-    flex: none;
-    font-size: 12px; color: var(--ink-2);
-    font-variant-numeric: tabular-nums;
-  }
+  /* 记录行里的克数/毫升数样式统一在 app.css（这里曾有一份重复规则，
+     内联样式排在 app.css 之后会把它覆盖掉，导致改动"看起来没生效"，已删除） */
 
   /* 我的食物（自建食物管理） */
   .my-foods { border-top: 1px solid var(--hairline); padding-top: 12px; }
