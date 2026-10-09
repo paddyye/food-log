@@ -33,6 +33,10 @@
   var refreshing = false;
   var refreshAgain = false;
 
+  var retryTimer = null;        // 首次连接失败后的退避重试
+  var retryCount = 0;
+  var watching = false;         // 轮询/订阅只启动一次
+
   var modalEl = null;
   var nickResolver = null;
 
@@ -168,6 +172,8 @@
   }
 
   function startWatching() {
+    if (watching) return;      // 连接重试成功时不要重复挂监听
+    watching = true;
     startPolling();        // 先兜底；订阅成功会把它停掉
     startRealtime();
     document.addEventListener('visibilitychange', function () {
@@ -323,6 +329,43 @@
   };
 
   /* ================= 启动 ================= */
+  // 登录 + 首屏拉取（可重复调用；失败由 scheduleRetry 兜底）
+  function connectOnce() {
+    return supa.auth.getSession().then(function (res) {
+      var session = res.data && res.data.session;
+      if (session && session.user) return session.user;
+      var saved = readNick();
+      if (saved) return signInAnonymously(saved);
+      return promptNickname('', true).then(function (n) {
+        saveNick(n);
+        return signInAnonymously(n);
+      });
+    }).then(function (user) {
+      me.id = user.id;
+      me.nickname = (user.user_metadata && user.user_metadata.nickname) || readNick() || '匿名';
+      return fetchAll();
+    });
+  }
+
+  // 首次连接失败会自动重试：进站那一刻网络抖动很常见，
+  // 不重试的话页面会停在「没身份」的状态，写记录只会报数据库权限错误。
+  function scheduleRetry() {
+    if (retryTimer || retryCount >= 5) return;
+    retryCount++;
+    retryTimer = setTimeout(function () {
+      retryTimer = null;
+      connectOnce().then(function () {
+        retryCount = 0;
+        wireWhoami();
+        startWatching();
+        if (hooks.onReady) hooks.onReady();
+        FoodLog.showToast('已连上服务器');
+      }, function () {
+        scheduleRetry();       // 退避再试
+      });
+    }, 4000 * retryCount);
+  }
+
   Cloud.connect = function (options) {
     hooks = options || {};
 
@@ -337,39 +380,32 @@
       return Promise.resolve(false);
     }
 
-    supa = window.supabase.createClient(cfg.url, cfg.key);
+    if (!supa) supa = window.supabase.createClient(cfg.url, cfg.key);
 
-    return supa.auth.getSession().then(function (res) {
-      var session = res.data && res.data.session;
-      if (session && session.user) return session.user;
-      var saved = readNick();
-      if (saved) return signInAnonymously(saved);
-      return promptNickname('', true).then(function (n) {
-        saveNick(n);
-        return signInAnonymously(n);
-      });
-    }).then(function (user) {
-      me.id = user.id;
-      me.nickname = (user.user_metadata && user.user_metadata.nickname) || readNick() || '匿名';
-      return fetchAll();
-    }).then(function () {
+    return connectOnce().then(function () {
+      retryCount = 0;
       wireWhoami();
       startWatching();
       if (hooks.onReady) hooks.onReady();
       return true;
     }, function (e) {
-      // 首次加载失败：仍然把界面放出来，轮询会在网络恢复后自动补上数据
+      // 失败也先把界面放出来（数据侧靠轮询在恢复后自动补），并安排自动重试
       setMode('polling');
       FoodLog.showToast('连不上服务器：' + errText(e), true);
       wireWhoami();
       startWatching();
       if (hooks.onReady) hooks.onReady();
+      scheduleRetry();
       return false;
     });
   };
 
   /* ================= 记录：增 / 删 ================= */
+  // 还没登录成功时给一句人话，而不是让数据库丢回 RLS 错误
+  function notConnected() { return { ok: false, error: '还没连上服务器，请稍等几秒再试' }; }
+
   Cloud.addEntry = function (entry) {
+    if (!me.id) return Promise.resolve(notConnected());
     var row = {
       entry_date: entry.date,
       meal: entry.meal,
@@ -390,6 +426,7 @@
   };
 
   Cloud.deleteEntry = function (id) {
+    if (!me.id) return Promise.resolve(notConnected());
     return supa.from('entries').delete().eq('id', id).select().then(function (res) {
       if (res.error) return { ok: false, error: errText(res.error) };
       if (!res.data.length) return { ok: false, error: '记录不存在或不是自己添加的' };
@@ -401,6 +438,7 @@
 
   /* ================= 自建食物：增 / 改 / 删 ================= */
   Cloud.saveCustomFood = function (food) {
+    if (!me.id) return Promise.resolve(notConnected());
     if (food.id) {
       return supa.from('custom_foods')
         .update({ name: food.name, kcal100: food.kcal100, unit: food.unit })
@@ -424,6 +462,7 @@
   };
 
   Cloud.deleteCustomFood = function (id) {
+    if (!me.id) return Promise.resolve(notConnected());
     return supa.from('custom_foods').delete().eq('id', id).select().then(function (res) {
       if (res.error) return { ok: false, error: errText(res.error) };
       if (!res.data.length) return { ok: false, error: '食物不存在或不是自己添加的' };

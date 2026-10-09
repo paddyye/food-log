@@ -281,10 +281,13 @@
 
   <!-- 第 3 条：今天总摄入 -->
   <header class="today">
-    <p class="today-label">今天总摄入</p>
+    <p class="today-label" id="todayLabel">今天总摄入</p>
     <p class="today-value"><span id="todayKcal">0</span><span class="unit">千卡</span></p>
     <p class="today-sub" id="todaySub"></p>
-    <button type="button" class="whoami" id="whoami" hidden></button>
+    <div class="head-tools">
+      <button type="button" class="whoami" id="whoami" hidden></button>
+      <div class="view-switch" id="viewSwitch" role="group" aria-label="查看范围"></div>
+    </div>
     <a class="page-nav" href="history.html" id="historyLink">往日记录 →</a>
   </header>
 
@@ -452,6 +455,7 @@
   var myFoodsToggle = document.getElementById('myFoodsToggle');
   var myFoodsCount = document.getElementById('myFoodsCount');
   var myFoodsList = document.getElementById('myFoodsList');
+  var todayLabelEl = document.getElementById('todayLabel');
   var todayKcalEl = document.getElementById('todayKcal');
   var todaySubEl = document.getElementById('todaySub');
   var listEl = document.getElementById('list');
@@ -600,14 +604,17 @@
   /* ================= 渲染 ================= */
   function renderToday() {
     var today = todayLocalISO();
+    var mine = FoodLog.getViewMode() === 'mine';
+    var recs = FoodLog.visibleRecords(FoodLog.store.records);
     var total = 0;
     var count = 0;
-    for (var i = 0; i < FoodLog.store.records.length; i++) {
-      if (FoodLog.store.records[i].date === today) {
-        total += FoodLog.store.records[i].calories;
+    for (var i = 0; i < recs.length; i++) {
+      if (recs[i].date === today) {
+        total += recs[i].calories;
         count++;
       }
     }
+    todayLabelEl.textContent = '今天总摄入' + (mine ? '（我的）' : '（全家）');
     todayKcalEl.textContent = fmtKcal(total);
     todaySubEl.textContent = dateLabel(today) + ' · ' + count + ' 条记录';
   }
@@ -616,9 +623,10 @@
   // 空态基于「过滤后的数组」判断（renderDayGroups 内部负责），不是原始 store。
   function renderList(highlightId) {
     var today = todayLocalISO();
-    var todays = FoodLog.store.records.filter(function (r) { return r.date === today; });
+    var mine = FoodLog.getViewMode() === 'mine';
+    var todays = FoodLog.visibleRecords(FoodLog.store.records).filter(function (r) { return r.date === today; });
     renderDayGroups(listEl, todays, {
-      emptyText: '今天还没有记录',
+      emptyText: mine ? '今天我还没有记录' : '今天还没有记录',
       highlightId: highlightId,
       onDelete: deleteEntry
     });
@@ -1550,6 +1558,9 @@
         render();
       }
     });
+
+    // 「我的 / 全家」切换：默认只算自己的，选择记在本地存储里
+    FoodLog.createViewToggle(document.getElementById('viewSwitch'), render);
 
     // 数据在服务器：匿名登录 → 首屏拉取 → 实时订阅（连不上自动转轮询）
     window.Cloud.connect({

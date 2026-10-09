@@ -85,7 +85,7 @@ main {
   font-size: 12px; color: var(--ink-2);
 }
 .entry-name {
-  flex: 1; min-width: 0;
+  flex: 0 1 auto; min-width: 0;    /* 不吃掉整行空白：后面的作者/份量/热量紧跟名字靠左 */
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   font-size: 15px;
 }
@@ -98,6 +98,7 @@ main {
 .cal-unit { margin-left: 2px; font-size: 12px; color: var(--ink-2); }
 .delete-btn {
   flex: none;
+  margin-left: auto;               /* 信息靠左后，由删除按钮把右侧撑开、自己贴边 */
   width: 44px; height: 44px;
   display: grid; place-items: center;
   border: 0; border-radius: 10px;
@@ -133,6 +134,28 @@ main {
   transition: color .15s ease, border-color .15s ease;
 }
 .whoami:hover, .whoami:active { color: var(--accent); border-color: var(--accent); }
+
+/* ============ 头部工具条：昵称 + 「我的 / 全家」切换 ============ */
+.head-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.head-tools .whoami { margin-top: 0; }
+.view-switch {
+  display: inline-flex; align-items: center;
+  border: 1px solid var(--hairline); border-radius: 999px;
+  overflow: hidden;
+}
+.view-btn {
+  min-height: 32px; padding: 4px 12px;
+  border: 0; background: none;
+  color: var(--ink-2);
+  font: inherit; font-size: 12px;
+  cursor: pointer;
+  transition: color .15s ease, background-color .15s ease;
+}
+.view-btn + .view-btn { border-left: 1px solid var(--hairline); }
+.view-btn.is-on {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent); font-weight: 600;
+}
 
 /* ============ 昵称弹窗（首次进站必须起名；之后点「✎ 昵称」可改） ============ */
 .nick-mask {

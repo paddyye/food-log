@@ -129,6 +129,64 @@
     return !!(C && C.userId() && x && x.authorId === C.userId());
   }
 
+  /* ================= 查看范围：只看自己 / 全家 ================= */
+  // 数据始终是全家共用的一份；这里只决定「列表和合计里算谁」。
+  var VIEW_KEY = 'foodLog.view';
+  var viewMode = 'mine';          // 'mine'（默认）| 'all'
+
+  (function loadViewMode() {
+    try {
+      var v = localStorage.getItem(VIEW_KEY);
+      if (v === 'all' || v === 'mine') viewMode = v;
+    } catch (e) { /* 存储不可用时用默认值 */ }
+  })();
+
+  function getViewMode() { return viewMode; }
+
+  function setViewMode(m) {
+    viewMode = (m === 'all') ? 'all' : 'mine';
+    try { localStorage.setItem(VIEW_KEY, viewMode); } catch (e) { /* 忽略 */ }
+  }
+
+  // 按当前范围过滤。还没拿到身份时不过滤（宁可多显示，也不让页面空着）
+  function visibleRecords(records) {
+    var C = window.Cloud;
+    if (viewMode !== 'mine' || !C || !C.userId()) return records;
+    var uid = C.userId();
+    return records.filter(function (r) { return r.authorId === uid; });
+  }
+
+  // 「我的 / 全家」分段切换控件（两个页面共用；挂到页面给的容器里）
+  function createViewToggle(mount, onChange) {
+    if (!mount) return;
+    var opts = [{ value: 'mine', label: '我的' }, { value: 'all', label: '全家' }];
+    mount.textContent = '';
+    opts.forEach(function (o) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'view-btn';
+      btn.dataset.view = o.value;
+      btn.textContent = o.label;
+      btn.addEventListener('click', function () {
+        if (viewMode === o.value) return;
+        setViewMode(o.value);
+        refreshViewToggle(mount);
+        if (onChange) onChange();
+      });
+      mount.appendChild(btn);
+    });
+    refreshViewToggle(mount);
+  }
+
+  function refreshViewToggle(mount) {
+    var btns = mount.querySelectorAll('.view-btn');
+    for (var i = 0; i < btns.length; i++) {
+      var on = btns[i].dataset.view === viewMode;
+      btns[i].classList.toggle('is-on', on);
+      btns[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+  }
+
   // 记录里「数量/单位/每100热量」三件套：旧记录没有这三个字段（合法），
   // 有就必须三件齐全且合法，避免出现算不出热量的半截记录。
   function hasAmountTriple(e) {
@@ -395,6 +453,10 @@
     upsertFood: upsertFood,
     removeFood: removeFood,
     isMine: isMine,
+    getViewMode: getViewMode,
+    setViewMode: setViewMode,
+    visibleRecords: visibleRecords,
+    createViewToggle: createViewToggle,
     fmtKcal: fmtKcal,
     showToast: showToast,
     createEntryRow: createEntryRow,

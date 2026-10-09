@@ -28,8 +28,11 @@
 <main>
   <header class="history-head">
     <h1 class="history-title">往日记录</h1>
-    <p class="history-hint">全家共享 · 只保留最近 7 天，过期自动清理</p>
-    <button type="button" class="whoami" id="whoami" hidden></button>
+    <p class="history-hint">默认只看自己 · 只保留最近 7 天，过期自动清理</p>
+    <div class="head-tools">
+      <button type="button" class="whoami" id="whoami" hidden></button>
+      <div class="view-switch" id="viewSwitch" role="group" aria-label="查看范围"></div>
+    </div>
     <a class="page-nav" href="index.html">← 返回今天</a>
   </header>
 
@@ -53,17 +56,20 @@
   var FoodLog = window.FoodLog;
   var listEl = document.getElementById('historyList');
 
-  // 今天之外的记录（含家人补记的往日数据；「未到日期」的脏数据标出来便于删除）
+  // 今天之外的记录，按当前查看范围过滤（「未到日期」的脏数据标出来便于删除）
   function renderHistory() {
     var today = FoodLog.todayLocalISO();
-    var past = FoodLog.store.records.filter(function (r) { return r.date !== today; });
+    var mine = FoodLog.getViewMode() === 'mine';
+    var past = FoodLog.visibleRecords(FoodLog.store.records).filter(function (r) { return r.date !== today; });
     FoodLog.renderDayGroups(listEl, past, {
-      emptyText: '最近 7 天还没有更早的记录',
+      emptyText: mine ? '最近 7 天我还没有更早的记录' : '最近 7 天还没有更早的记录',
       highlightId: null,
       markFuture: true,
       onDelete: function (id) { FoodLog.deleteRecord(id, renderHistory); }
     });
   }
+
+  FoodLog.createViewToggle(document.getElementById('viewSwitch'), renderHistory);
 
   // 匿名登录 → 首屏拉取 → 实时订阅（连不上自动转轮询）。
   // 7 天过期清理已改由服务器定时任务执行（见 supabase/schema.sql），前端不再删数据。
