@@ -309,7 +309,8 @@
     unit.textContent = '千卡';
     cal.appendChild(unit);
 
-    // 只有自己添加的记录才给删除按钮（数据库侧 RLS 另有强制约束）
+    // 只有自己添加的记录才给删除按钮（数据库侧 RLS 另有强制约束）；
+    // 别人的行放一个同宽占位，否则按钮宽度会把右侧各列挤歪、上下对不齐。
     var del = null;
     if (isMine(entry)) {
       del = document.createElement('button');
@@ -320,6 +321,10 @@
       del.addEventListener('click', function () {
         if (opts.onDelete) opts.onDelete(entry.id);
       });
+    } else {
+      del = document.createElement('span');
+      del.className = 'del-holder';
+      del.setAttribute('aria-hidden', 'true');
     }
 
     row.appendChild(tag);
@@ -417,6 +422,86 @@
     });
   }
 
+  // 按人分组（全家视图用）：我自己排最前，其余按昵称排
+  function groupByPerson(records) {
+    var map = {};
+    var order = [];
+    records.forEach(function (r) {
+      var key = r.authorId || ('name:' + (r.authorName || ''));
+      if (!map[key]) {
+        map[key] = { authorId: r.authorId || '', authorName: r.authorName || '未知', items: [] };
+        order.push(key);
+      }
+      map[key].items.push(r);
+    });
+    var C = window.Cloud;
+    var uid = C && C.userId();
+    order.sort(function (a, b) {
+      var ga = map[a], gb = map[b];
+      var ma = !!(ga.authorId && ga.authorId === uid);
+      var mb = !!(gb.authorId && gb.authorId === uid);
+      if (ma !== mb) return ma ? -1 : 1;
+      return ga.authorName.localeCompare(gb.authorName, 'zh');
+    });
+    return order.map(function (k) { return map[k]; });
+  }
+
+  // 全家视图：按人分块，每人一块带各自小计。
+  // opts.dates=true（往日页）时，块内再按日期分组；否则直接按餐次列出（主页当天）。
+  function renderPersonGroups(container, records, opts) {
+    opts = opts || {};
+    container.textContent = '';
+
+    if (!records.length) {
+      var empty = document.createElement('p');
+      empty.className = 'empty';
+      empty.textContent = opts.emptyText || '还没有记录';
+      container.appendChild(empty);
+      return;
+    }
+
+    groupByPerson(records).forEach(function (g) {
+      var sec = document.createElement('section');
+      sec.className = 'person-group';
+
+      var header = document.createElement('div');
+      header.className = 'person-header';
+      var label = document.createElement('span');
+      label.className = 'person-label';
+      label.textContent = g.authorName;
+      var total = g.items.reduce(function (s, r) { return s + r.calories; }, 0);
+      var totalEl = document.createElement('span');
+      totalEl.className = 'day-total';
+      totalEl.textContent = '共 ' + fmtKcal(total) + ' 千卡 · ' + g.items.length + ' 条';
+      header.appendChild(label);
+      header.appendChild(totalEl);
+      sec.appendChild(header);
+
+      var body = document.createElement('div');
+      sec.appendChild(body);
+
+      if (opts.dates) {
+        renderDayGroups(body, g.items.slice(), {
+          markFuture: opts.markFuture,
+          onDelete: opts.onDelete,
+          emptyText: ''
+        });
+      } else {
+        g.items.slice().sort(function (a, b) {
+          var ma = MEAL_INDEX.hasOwnProperty(a.meal) ? MEAL_INDEX[a.meal] : 99;
+          var mb = MEAL_INDEX.hasOwnProperty(b.meal) ? MEAL_INDEX[b.meal] : 99;
+          return ma - mb || a.id - b.id;
+        }).forEach(function (entry) {
+          body.appendChild(createEntryRow(entry, {
+            flash: entry.id === opts.highlightId,
+            onDelete: opts.onDelete
+          }));
+        });
+      }
+      container.appendChild(sec);
+    });
+  }
+
   /* ================= 导出 ================= */
   // store 已通过访问器属性挂上（见上），其余为不可变的函数/常量，页面可以安全取别名。
   Object.assign(FoodLog, {
@@ -462,6 +547,8 @@
     createEntryRow: createEntryRow,
     deleteRecord: deleteRecord,
     groupByDateDesc: groupByDateDesc,
-    renderDayGroups: renderDayGroups
+    renderDayGroups: renderDayGroups,
+    groupByPerson: groupByPerson,
+    renderPersonGroups: renderPersonGroups
   });
 })();

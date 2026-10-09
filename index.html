@@ -243,7 +243,8 @@
     font-size: 15px;
   }
   .my-food-kcal {
-    flex: none;
+    flex: 0 0 8.5em;          /* 固定列宽：与作者列一起上下对齐 */
+    overflow: hidden; white-space: nowrap;
     font-size: 13px; color: var(--ink-2);
     font-variant-numeric: tabular-nums;
   }
@@ -272,7 +273,17 @@
     .col-records { grid-area: records; gap: 24px; }
     /* 注意：.col-records / .records-panel 不得加 position/z-index——
        会造层叠上下文，挡住左列可能溢出过来的搜索下拉 */
+
+    /* 全家视图：没有表单了，记录区占满整行 */
+    body.view-all main {
+      grid-template-columns: 1fr;
+      grid-template-areas: "hero" "records";
+    }
+    body.view-all .col-records { max-width: 720px; }
   }
+
+  /* 全家视图只用来浏览：把录入表单收起来 */
+  body.view-all #entryForm { display: none; }
 </style>
 </head>
 <body>
@@ -376,7 +387,7 @@
     <section class="my-foods" id="myFoodsSection" aria-label="自建食物（全家共享）" hidden>
       <button type="button" class="my-foods-toggle" id="myFoodsToggle"
               aria-expanded="true" aria-controls="myFoodsList">
-        <span>自建食物 · 全家共享（<span id="myFoodsCount">0</span>）</span>
+        <span><span id="myFoodsLabel">自建食物 · 全家共享</span>（<span id="myFoodsCount">0</span>）</span>
         <span class="chev" aria-hidden="true">▾</span>
       </button>
       <div id="myFoodsList"></div>
@@ -453,6 +464,7 @@
   var editorCancelBtn = document.getElementById('foodEditorCancel');
   var myFoodsSection = document.getElementById('myFoodsSection');
   var myFoodsToggle = document.getElementById('myFoodsToggle');
+  var myFoodsLabel = document.getElementById('myFoodsLabel');
   var myFoodsCount = document.getElementById('myFoodsCount');
   var myFoodsList = document.getElementById('myFoodsList');
   var todayLabelEl = document.getElementById('todayLabel');
@@ -625,61 +637,98 @@
     var today = todayLocalISO();
     var mine = FoodLog.getViewMode() === 'mine';
     var todays = FoodLog.visibleRecords(FoodLog.store.records).filter(function (r) { return r.date === today; });
-    renderDayGroups(listEl, todays, {
-      emptyText: mine ? '今天我还没有记录' : '今天还没有记录',
-      highlightId: highlightId,
-      onDelete: deleteEntry
-    });
+    if (mine) {
+      renderDayGroups(listEl, todays, {
+        emptyText: '今天我还没有记录',
+        highlightId: highlightId,
+        onDelete: deleteEntry
+      });
+    } else {
+      // 全家视图：按人分块，每人一块带小计
+      FoodLog.renderPersonGroups(listEl, todays, {
+        emptyText: '今天还没有记录',
+        highlightId: highlightId,
+        onDelete: deleteEntry
+      });
+    }
   }
 
 
   /* ================= 我的食物（自建食物管理） ================= */
   var myFoodsExpanded = true;      // 模块级：visibilitychange 重渲染时保留展开状态
 
+  function createFoodRow(food) {
+    var row = document.createElement('div');
+    row.className = 'my-food-row';
+
+    var name = document.createElement('span');
+    name.className = 'my-food-name';
+    name.textContent = food.name;
+    name.title = food.name;
+
+    var author = null;
+    if (food.authorName) {
+      author = document.createElement('span');
+      author.className = 'entry-author';
+      author.textContent = food.authorName;
+      author.title = '由 ' + food.authorName + ' 添加';
+    }
+
+    var kcal = document.createElement('span');
+    kcal.className = 'my-food-kcal';
+    kcal.textContent = fmtKcal(food.kcal100) + ' 千卡/100' + unitText(food.unit);
+
+    row.appendChild(name);
+    if (author) row.appendChild(author);
+    row.appendChild(kcal);
+
+    if (FoodLog.isMine(food)) {            // 只能删自己的（数据库侧另有强制约束）
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'delete-btn';
+      del.setAttribute('aria-label', '删除自建食物 ' + food.name);
+      del.textContent = '✕';
+      del.addEventListener('click', function () { deleteCustomFood(food.id); });
+      row.appendChild(del);
+    } else {
+      var holder = document.createElement('span');   // 同宽占位：保证右侧各列上下对齐
+      holder.className = 'del-holder';
+      holder.setAttribute('aria-hidden', 'true');
+      row.appendChild(holder);
+    }
+    return row;
+  }
+
+  // 「我的」视图只列自己建的食物；「全家」视图列全部、按人分块
   function renderMyFoods() {
-    var foods = FoodLog.store.customFoods;
+    var all = FoodLog.store.customFoods;
+    var mine = FoodLog.getViewMode() === 'mine';
+    var foods = mine ? all.filter(function (f) { return FoodLog.isMine(f); }) : all;
+
     myFoodsSection.hidden = foods.length === 0;
+    myFoodsLabel.textContent = mine ? '我的自建食物' : '自建食物 · 全家共享';
     myFoodsCount.textContent = String(foods.length);
     myFoodsList.hidden = !myFoodsExpanded;
     myFoodsToggle.setAttribute('aria-expanded', myFoodsExpanded ? 'true' : 'false');
 
     myFoodsList.textContent = '';
-    foods.forEach(function (food) {
-      var row = document.createElement('div');
-      row.className = 'my-food-row';
-
-      var name = document.createElement('span');
-      name.className = 'my-food-name';
-      name.textContent = food.name;
-      name.title = food.name;
-
-      var kcal = document.createElement('span');
-      kcal.className = 'my-food-kcal';
-      kcal.textContent = fmtKcal(food.kcal100) + ' 千卡/100' + unitText(food.unit);
-
-      var author = null;
-      if (food.authorName) {
-        author = document.createElement('span');
-        author.className = 'entry-author';
-        author.textContent = food.authorName;
-        author.title = '由 ' + food.authorName + ' 添加';
-      }
-
-      row.appendChild(name);
-      if (author) row.appendChild(author);
-      row.appendChild(kcal);
-
-      if (FoodLog.isMine(food)) {          // 只能删自己的（数据库侧另有强制约束）
-        var del = document.createElement('button');
-        del.type = 'button';
-        del.className = 'delete-btn';
-        del.setAttribute('aria-label', '删除自建食物 ' + food.name);
-        del.textContent = '✕';
-        del.addEventListener('click', function () { deleteCustomFood(food.id); });
-        row.appendChild(del);
-      }
-
-      myFoodsList.appendChild(row);
+    if (mine) {
+      foods.forEach(function (food) { myFoodsList.appendChild(createFoodRow(food)); });
+      return;
+    }
+    FoodLog.groupByPerson(foods).forEach(function (g) {
+      var head = document.createElement('div');
+      head.className = 'person-header';
+      var label = document.createElement('span');
+      label.className = 'person-label';
+      label.textContent = g.authorName;
+      var count = document.createElement('span');
+      count.className = 'day-total';
+      count.textContent = g.items.length + ' 条';
+      head.appendChild(label);
+      head.appendChild(count);
+      myFoodsList.appendChild(head);
+      g.items.forEach(function (food) { myFoodsList.appendChild(createFoodRow(food)); });
     });
   }
 
@@ -710,6 +759,8 @@
 
   function render() {
     invalidateFoodIndex();     // 自建食物可能被家人改过：每次重渲染前重建搜索索引
+    // 「全家」视图没有「替别人录入」这回事：把录入表单收起来（只剩浏览）
+    document.body.classList.toggle('view-all', FoodLog.getViewMode() === 'all');
     renderToday();
     renderList(null);
     renderMyFoods();

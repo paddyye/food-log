@@ -61,12 +61,23 @@
     var today = FoodLog.todayLocalISO();
     var mine = FoodLog.getViewMode() === 'mine';
     var past = FoodLog.visibleRecords(FoodLog.store.records).filter(function (r) { return r.date !== today; });
-    FoodLog.renderDayGroups(listEl, past, {
-      emptyText: mine ? '最近 7 天我还没有更早的记录' : '最近 7 天还没有更早的记录',
-      highlightId: null,
-      markFuture: true,
-      onDelete: function (id) { FoodLog.deleteRecord(id, renderHistory); }
-    });
+    var onDelete = function (id) { FoodLog.deleteRecord(id, renderHistory); };
+    if (mine) {
+      FoodLog.renderDayGroups(listEl, past, {
+        emptyText: '最近 7 天我还没有更早的记录',
+        highlightId: null,
+        markFuture: true,
+        onDelete: onDelete
+      });
+    } else {
+      // 全家视图：先按人分块，块内再按日期分组
+      FoodLog.renderPersonGroups(listEl, past, {
+        emptyText: '最近 7 天还没有更早的记录',
+        markFuture: true,
+        dates: true,
+        onDelete: onDelete
+      });
+    }
   }
 
   FoodLog.createViewToggle(document.getElementById('viewSwitch'), renderHistory);

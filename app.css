@@ -75,7 +75,7 @@ main {
 }
 .day-total { font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-.entry-row { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 2px 0; }
+.entry-row { display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 2px 0; }
 .entry-row + .entry-row { border-top: 1px solid var(--hairline); }
 .meal-tag {
   flex: none; white-space: nowrap;
@@ -85,20 +85,27 @@ main {
   font-size: 12px; color: var(--ink-2);
 }
 .entry-name {
-  flex: 0 1 auto; min-width: 0;    /* 不吃掉整行空白：后面的作者/份量/热量紧跟名字靠左 */
+  flex: 1 1 auto; min-width: 0;    /* 吸收多余空间，把右侧信息列推到右端 */
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   font-size: 15px;
 }
 .entry-amount {
-  flex: none;
+  flex: 0 0 4em;                   /* 固定列宽：各行份量左对齐成一列 */
+  overflow: hidden; white-space: nowrap;
   font-size: 12px; color: var(--ink-2);
   font-variant-numeric: tabular-nums;
 }
-.entry-cal { flex: none; font-size: 14px; font-variant-numeric: tabular-nums; }
+.entry-cal {
+  flex: 0 0 4.6em;                 /* 固定列宽：各行热量左对齐成一列 */
+  overflow: hidden; white-space: nowrap;
+  font-size: 14px; font-variant-numeric: tabular-nums;
+}
 .cal-unit { margin-left: 2px; font-size: 12px; color: var(--ink-2); }
+/* 别人的行没有删除按钮：用同宽占位撑住，保证右侧信息列上下对齐 */
+.del-holder { flex: none; width: 44px; }
+
 .delete-btn {
   flex: none;
-  margin-left: auto;               /* 信息靠左后，由删除按钮把右侧撑开、自己贴边 */
   width: 44px; height: 44px;
   display: grid; place-items: center;
   border: 0; border-radius: 10px;
@@ -120,7 +127,7 @@ main {
 
 /* ============ 作者昵称 / 「我是谁」按钮 ============ */
 .entry-author {
-  flex: none; max-width: 5.5em;
+  flex: 0 0 4.5em;                 /* 固定列宽：各行作者左对齐成一列（过长省略） */
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   font-size: 11px; color: var(--ink-3);
 }
@@ -134,6 +141,14 @@ main {
   transition: color .15s ease, border-color .15s ease;
 }
 .whoami:hover, .whoami:active { color: var(--accent); border-color: var(--accent); }
+
+/* ============ 全家视图：按人分块 ============ */
+.person-header {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+  padding: 0 4px 8px;
+}
+.person-label { font-size: 14px; font-weight: 600; }
+.person-group .day-group + .day-group { margin-top: 16px; }   /* 往日页：块内日期组之间 */
 
 /* ============ 头部工具条：昵称 + 「我的 / 全家」切换 ============ */
 .head-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
